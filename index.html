@@ -329,7 +329,8 @@
       .rail { display: none !important; }
       .stage { margin: 0 !important; padding: 0 !important; background: #fff !important; }
       .stage__head { display: none !important; }
-      .bon-container { zoom: 1 !important; width: auto !important; box-shadow: none; margin: 0; outline: none !important; }
+      /* taille réelle à l'impression : on garde les dimensions cm du format (pas de width:auto qui étirait le bon) */
+      .bon-container { zoom: 1 !important; box-shadow: none; margin: 0; outline: none !important; }
       .bon-actions, .bon-index, .barcode-error { display: none !important; }
       .field::placeholder { color: transparent !important; }
       input.field:focus { background: transparent; border-bottom-color: transparent; }
