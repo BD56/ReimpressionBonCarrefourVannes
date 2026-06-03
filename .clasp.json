@@ -1,0 +1,28 @@
+{
+  "scriptId": "13Mb8NyHIM3XCkGEZrTz6rl9Fg1TRfBOjJrvu8VO_TMXCtglCYWPQfkkS",
+  "rootDir": ".",
+  "ignore": [
+    ".claude/*",
+    ".DS_Store",
+    "*.pdf",
+    "logo/*",
+    ".git/*",
+    ".gitignore"
+  ],
+  "scriptExtensions": [
+    ".js",
+    ".gs"
+  ],
+  "htmlExtensions": [
+    ".html"
+  ],
+  "jsonExtensions": [
+    ".json"
+  ],
+  "filePushOrder": [
+    "Code.gs",
+    "index.html",
+    "appsscript.json"
+  ],
+  "skipSubdirectories": false
+}
