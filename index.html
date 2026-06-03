@@ -502,15 +502,15 @@
       ean.addEventListener('input', function () {
         const cleaned = this.value.replace(/\D/g, '');
         if (cleaned !== this.value) this.value = cleaned;
-        updateBarcode(card); refreshState();
+        updateBarcode(card); updateStatus();
       });
       const montant = card.querySelector('.montant-input');
       montant.addEventListener('blur', function () {
         const raw = this.value.replace(/[^\d,.]/g, '').replace('.', ',');
-        if (!raw) { this.value = ''; refreshState(); return; }
+        if (!raw) { this.value = ''; updateStatus(); return; }
         const num = parseFloat(raw.replace(',', '.'));
         this.value = isNaN(num) ? '' : num.toFixed(2).replace('.', ',') + ' €';
-        refreshState();
+        updateStatus();
       });
       montant.addEventListener('focus', function () { this.value = this.value.replace(/\s*€\s*$/, ''); });
 
@@ -592,9 +592,9 @@
       bonsList.style.setProperty('--print-cols', COLS[currentLayout]);
     }
 
-    // numérotation + repérage des bons incomplets + compteurs
-    function refreshState() {
-      rebuildPages();
+    // mise à jour LÉGÈRE : numérotation, bons incomplets, compteurs.
+    // NE reconstruit PAS le DOM → ne fait pas perdre le focus pendant la saisie.
+    function updateStatus() {
       const wraps = allWraps();
       const count = wraps.length;
       let incomplete = 0;
@@ -616,6 +616,13 @@
           incomplete + (incomplete > 1 ? ' bons incomplets' : ' bon incomplet') + ' (EAN ou montant manquant)';
       } else warn.classList.remove('show');
       pageStyle.textContent = '@page { size: A4 portrait; margin: ' + PAGE_MARGIN_MM + 'mm; }';
+    }
+
+    // reconstruit les groupes de page PUIS met à jour l'état.
+    // À n'appeler qu'à l'ajout / suppression / changement de format.
+    function refreshState() {
+      rebuildPages();
+      updateStatus();
     }
 
     // ---- Câblage des contrôles ----
