@@ -431,7 +431,7 @@
       </div>
       <div class="warn" id="warn"><span class="dot"></span><span id="warnText"></span></div>
       <button type="button" class="btn btn--print" id="printButton">🖨️ Imprimer</button>
-      <button type="button" class="legal-link" id="legalBtn">⚖️ Mentions légales</button>
+      <button type="button" class="legal-link" id="legalBtn">© <span id="legalYearLink"></span> DESJARDINS Bryan - Mentions légales</button>
     </div>
   </aside>
 
@@ -688,7 +688,9 @@
 
     // ---- Mentions légales (modale) ----
     const legalModal = document.getElementById('legalModal');
-    document.getElementById('legalYear').textContent = new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
+    document.getElementById('legalYear').textContent = currentYear;
+    document.getElementById('legalYearLink').textContent = currentYear;
     function closeLegal() { legalModal.hidden = true; }
     document.getElementById('legalBtn').addEventListener('click', () => { legalModal.hidden = false; });
     document.getElementById('legalClose').addEventListener('click', closeLegal);
