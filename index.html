@@ -4,12 +4,12 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Maquette — Réimpression Bon Carrefour Vannes</title>
+  <title>Réimpression Bon - Carrefour Vannes</title>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <style id="pageStyle">@page { size: A4 portrait; margin: 10mm; }</style>
   <style>
     /* =========================================================
-       MAQUETTE — proposition de design modernisé
+       MAQUETTE - proposition de design modernisé
        (poste fixe • aperçu agrandi volontaire • sans persistance)
        ========================================================= */
     :root {
@@ -78,6 +78,14 @@
     .rail__logo img { width: 34px; height: auto; display: block; }
     .rail__brand h1 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
     .rail__brand p  { margin: 2px 0 0; font-size: 12px; color: var(--rail-muted); }
+    .help-btn {
+      margin-left: auto; flex: none; cursor: pointer;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid var(--rail-line); background: rgba(255,255,255,.06);
+      color: var(--rail-ink); font-size: 14px; font-weight: 700; line-height: 1;
+      transition: background .15s, border-color .15s;
+    }
+    .help-btn:hover { background: rgba(255,255,255,.14); border-color: #2f8bff; }
 
     .rail__body { flex: 1; overflow-y: auto; padding: 22px 24px; }
     .group { margin-bottom: 26px; }
@@ -205,6 +213,10 @@
       background: #eef1f6; color: var(--ink); font-size: 18px; line-height: 1;
     }
     .modal-close:hover { background: #e1e6ee; }
+    .help-list { margin: 0; padding-left: 20px; }
+    .help-list li { font-size: 13px; line-height: 1.5; color: #2c3440; margin-bottom: 10px; }
+    .help-list li:last-child { margin-bottom: 0; }
+    .help-list b { color: var(--cf-blue-dark); }
 
     /* ===================== Zone de travail ===================== */
     .stage {
@@ -239,7 +251,7 @@
     .bon-container { zoom: 1.7; margin: 0 auto; }
     .bon-wrap { position: relative; }
 
-    /* ===================== Le bon — redesign (2 formats) ===================== */
+    /* ===================== Le bon - redesign (2 formats) ===================== */
     .bon-container {
       background: var(--paper);
       box-shadow: var(--shadow-lg);
@@ -253,7 +265,7 @@
     }
     .bon-wrap.incomplete .bon-container { outline-color: #f5a524; }
 
-    /* Vertical : 5 × 10 cm — en-tête en haut, cœur centré, pied en bas */
+    /* Vertical : 5 × 10 cm - en-tête en haut, cœur centré, pied en bas */
     .bon-container.layout-vertical {
       width: 5cm; min-height: 10cm;
       grid-template-columns: 1fr;
@@ -261,7 +273,7 @@
       grid-template-areas:
         "accent" "header" "." "ribbon" "montant" "validity" "." "barcode" "legal";
     }
-    /* Horizontal : 12,35 × 5 cm — bandeau, 2 colonnes, légal */
+    /* Horizontal : 12,35 × 5 cm - bandeau, 2 colonnes, légal */
     .bon-container.layout-horizontal {
       width: 12.35cm; min-height: 5cm;
       grid-template-columns: 1.05fr 1fr;
@@ -389,6 +401,7 @@
         <h1>Réimpression de bon</h1>
         <p>Carrefour Vannes</p>
       </div>
+      <button type="button" class="help-btn" id="helpBtn" aria-label="Aide" title="Aide">?</button>
     </div>
 
     <div class="rail__body">
@@ -440,10 +453,27 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
       <button type="button" class="modal-close" id="legalClose" aria-label="Fermer">×</button>
       <h2 id="legalTitle">⚖️ Mentions légales</h2>
-      <p>© <span id="legalYear"></span> DESJARDINS Bryan — Tous droits réservés.</p>
+      <p>© <span id="legalYear"></span> DESJARDINS Bryan - Tous droits réservés.</p>
       <p>Cette application, son code et sa conception demeurent la propriété exclusive de l'auteur. L'auteur concède à l'Hypermarché Carrefour Vannes une simple licence d'utilisation personnelle, non exclusive et révocable à tout moment, sans transfert d'aucun droit de propriété. Toute reproduction, copie, modification ou déploiement par un tiers sans accord écrit préalable de l'auteur est strictement interdit.</p>
       <p><strong>Usage</strong> : outil interne de réimpression de bons d'achat. Il ne collecte ni ne conserve aucune donnée personnelle ; les informations saisies servent uniquement à générer le bon à l'écran, le temps de l'impression. Visuel non officiel, sans valeur contractuelle.</p>
       <p><strong>Responsabilité</strong> : l'auteur fournit l'infrastructure technique « telle quelle ». L'usage conforme de l'outil relève de la direction de l'établissement utilisateur.</p>
+    </div>
+  </div>
+
+  <!-- ===================== Modale aide ===================== -->
+  <div class="modal-overlay" id="helpModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button type="button" class="modal-close" id="helpClose" aria-label="Fermer">×</button>
+      <h2 id="helpTitle">❓ Aide</h2>
+      <ol class="help-list">
+        <li><b>Format</b> : choisissez Vertical (5×10 cm, 6 par page) ou Horizontal (12,35×5 cm, 4 par page).</li>
+        <li><b>Remplir</b> : montant, dates de validité et code EAN. Le code-barres se génère automatiquement (EAN-13 / EAN-8, sinon CODE128).</li>
+        <li><b>Saisie rapide</b> : la touche Entrée passe au champ suivant ; sur le dernier champ, elle crée un nouveau bon.</li>
+        <li><b>Plusieurs bons</b> : réglez la quantité (+ / −) puis « Ajouter ». Survolez un bon pour le dupliquer (⧉) ou le supprimer (×).</li>
+        <li><b>Contrôle</b> : le compteur indique le nombre de bons et de pages A4 ; un bon incomplet (sans montant ou EAN) est surligné en orange.</li>
+        <li><b>Imprimer</b> : le bouton Imprimer lance une page A4 à taille réelle, avec repères de découpe.</li>
+        <li><b>À savoir</b> : rien n'est enregistré ; recharger la page efface tout.</li>
+      </ol>
     </div>
   </div>
 
@@ -536,7 +566,7 @@
         container.appendChild(svg2);
         try {
           JsBarcode(svg2, ean, { format: "CODE128", lineColor: "#000", width: 1.6, height: 42, displayValue: false, margin: 0 });
-          if (format !== "CODE128") errEl.textContent = "Clé EAN invalide — affiché en CODE128.";
+          if (format !== "CODE128") errEl.textContent = "Clé EAN invalide - affiché en CODE128.";
         } catch (e2) { container.innerHTML = ''; errEl.textContent = "Code-barres impossible à générer."; }
       }
     }
@@ -686,16 +716,21 @@
       bonsList.innerHTML = ''; addBons(1);
     });
 
-    // ---- Mentions légales (modale) ----
-    const legalModal = document.getElementById('legalModal');
+    // ---- Modales (mentions légales + aide) ----
     const currentYear = new Date().getFullYear();
     document.getElementById('legalYear').textContent = currentYear;
     document.getElementById('legalYearLink').textContent = currentYear;
-    function closeLegal() { legalModal.hidden = true; }
-    document.getElementById('legalBtn').addEventListener('click', () => { legalModal.hidden = false; });
-    document.getElementById('legalClose').addEventListener('click', closeLegal);
-    legalModal.addEventListener('click', e => { if (e.target === legalModal) closeLegal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !legalModal.hidden) closeLegal(); });
+
+    function wireModal(modalId, openBtnId, closeBtnId) {
+      const modal = document.getElementById(modalId);
+      const close = () => { modal.hidden = true; };
+      document.getElementById(openBtnId).addEventListener('click', () => { modal.hidden = false; });
+      document.getElementById(closeBtnId).addEventListener('click', close);
+      modal.addEventListener('click', e => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
+    }
+    wireModal('legalModal', 'legalBtn', 'legalClose');
+    wireModal('helpModal', 'helpBtn', 'helpClose');
 
     // Init
     addBons(1);
