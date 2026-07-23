@@ -152,6 +152,29 @@
     .btn--ghost  { width: 100%; background: transparent; color: var(--rail-muted); border: 1.5px solid var(--rail-line); }
     .btn--ghost:hover { color: var(--rail-ink); background: rgba(255,255,255,.06); }
 
+    /* interrupteur d'assistance au montant */
+    .switch-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; cursor: pointer; user-select: none;
+    }
+    .switch-row input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .switch {
+      position: relative; flex: none;
+      width: 38px; height: 21px; border-radius: 999px;
+      background: rgba(255,255,255,.14); border: 1px solid var(--rail-line);
+      transition: background .18s, border-color .18s;
+    }
+    .switch::after {
+      content: ""; position: absolute; top: 2px; left: 2px;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: #fff; transition: transform .18s;
+    }
+    .switch-row input:checked + .switch { background: #2f8bff; border-color: #2f8bff; }
+    .switch-row input:checked + .switch::after { transform: translateX(17px); }
+    .switch-row input:focus-visible + .switch { box-shadow: 0 0 0 3px rgba(47,139,255,.35); }
+    .switch-text { font-size: 13px; font-weight: 600; color: var(--rail-ink); line-height: 1.25; }
+    .switch-text small { display: block; font-size: 11px; font-weight: 400; color: var(--rail-muted); margin-top: 2px; }
+
     /* ===================== Pied du rail (résumé + impression) ===================== */
     .rail__foot {
       border-top: 1px solid var(--rail-line);
@@ -436,6 +459,14 @@
 
       <div class="group">
         <p class="group__label">Outils</p>
+        <label class="switch-row" for="assistToggle">
+          <input type="checkbox" id="assistToggle" checked>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="switch-text">
+            Assistance montant
+            <small>Remplit le montant selon l'EAN</small>
+          </span>
+        </label>
         <button type="button" class="btn btn--ghost" id="resetButton">↺ Tout réinitialiser</button>
       </div>
     </div>
@@ -459,7 +490,7 @@
       <p>© <span id="legalYear"></span> DESJARDINS Bryan - Tous droits réservés.</p>
       <p>Cette application, son code et sa conception demeurent la propriété exclusive de l'auteur. L'auteur concède à l'Hypermarché Carrefour Vannes une simple licence d'utilisation personnelle, non exclusive et révocable à tout moment, sans transfert d'aucun droit de propriété. Toute reproduction, copie, modification ou déploiement par un tiers sans accord écrit préalable de l'auteur est strictement interdit.</p>
       <p><strong>Usage</strong> : outil interne de réimpression de bons d'achat. Visuel non officiel, sans valeur contractuelle.</p>
-      <p><strong>Données</strong> : aucune donnée personnelle n'est collectée ni conservée (aucune information relative aux clients n'est saisie). Afin d'assister la saisie, l'application mémorise uniquement l'association entre un code EAN et son montant, au moment de l'impression, dans une feuille de calcul privée accessible au seul auteur et à l'établissement. Les bons en cours de préparation ne sont pas sauvegardés.</p>
+      <p><strong>Données</strong> : aucune donnée personnelle n'est collectée ni conservée (aucune information relative aux clients n'est saisie). Afin d'assister la saisie, et uniquement lorsque l'assistance est activée, l'application mémorise l'association entre un code EAN et son montant, au moment de l'impression, dans une feuille de calcul privée accessible au seul auteur et à l'établissement. Cette assistance peut être désactivée à tout moment depuis l'application, ce qui suspend toute lecture comme tout enregistrement. Les bons en cours de préparation ne sont pas sauvegardés.</p>
       <p><strong>Responsabilité</strong> : l'auteur fournit l'infrastructure technique « telle quelle ». L'usage conforme de l'outil relève de la direction de l'établissement utilisateur.</p>
     </div>
   </div>
@@ -472,7 +503,7 @@
       <ol class="help-list">
         <li><b>Format</b> : choisissez Vertical (5×10 cm, 6 par page) ou Horizontal (12,35×5 cm, 4 par page).</li>
         <li><b>Remplir</b> : montant, dates de validité et code EAN. Le code-barres se génère automatiquement (EAN-13 / EAN-8, sinon CODE128).</li>
-        <li><b>Montant automatique</b> : si le code EAN a déjà été imprimé auparavant, le montant se remplit tout seul sur fond jaune. Vérifiez-le, et corrigez-le si besoin : votre correction fera foi la prochaine fois.</li>
+        <li><b>Montant automatique</b> : si le code EAN a déjà été imprimé auparavant, le montant se remplit tout seul sur fond jaune. Vérifiez-le, et corrigez-le si besoin : votre correction fera foi la prochaine fois. Vous pouvez couper cette aide à tout moment avec l'interrupteur « Assistance montant », dans les Outils.</li>
         <li><b>Saisie rapide</b> : la touche Entrée passe au champ suivant ; sur le dernier champ, elle crée un nouveau bon.</li>
         <li><b>Plusieurs bons</b> : réglez la quantité (+ / −) puis « Ajouter ». Survolez un bon pour le dupliquer (⧉) ou le supprimer (×).</li>
         <li><b>Contrôle</b> : le compteur indique le nombre de bons et de pages A4 ; un bon incomplet (sans montant ou EAN) est surligné en orange.</li>
@@ -548,6 +579,24 @@
     const serveurDispo = () =>
       typeof google !== 'undefined' && google.script && google.script.run;
 
+    /* Interrupteur d'assistance : coupe à la fois la lecture (pré-remplissage)
+       et l'écriture (apprentissage), pour que « désactivé » veuille bien dire
+       que rien ne se passe. Le choix est retenu sur le poste. */
+    const CLE_ASSISTANCE = 'assistanceMontant';
+    let assistanceActive = true;
+    try { assistanceActive = localStorage.getItem(CLE_ASSISTANCE) !== 'off'; } catch (e) { /* stockage indisponible */ }
+
+    // Retire les montants venus de la mémoire, en laissant les saisies humaines.
+    function effacerAutoRemplis() {
+      allWraps().forEach(w => {
+        const m = w.querySelector('.montant-input');
+        if (m.classList.contains('auto-rempli')) {
+          m.value = ''; m.classList.remove('auto-rempli'); m.title = '';
+        }
+      });
+      updateStatus();
+    }
+
     function chargerMemoire() {
       if (!serveurDispo()) return;
       google.script.run
@@ -562,6 +611,7 @@
        nouvel EAN est connu, effacée sinon. Sans quoi un montant fantôme
        resterait collé à un EAN qui n'a rien à voir. */
     function appliquerMemoire(card, ean) {
+      if (!assistanceActive) return;
       const montant = card.querySelector('.montant-input');
       const automatique = montant.classList.contains('auto-rempli');
       if (montant.value.trim() && !automatique) return;
@@ -590,7 +640,7 @@
 
     // Envoi à l'impression, en tâche de fond : ne retarde jamais l'impression.
     function memoriser() {
-      if (!serveurDispo()) return;
+      if (!assistanceActive || !serveurDispo()) return;
       const entrees = [];
       allWraps().forEach(w => {
         const ean = w.querySelector('.ean-input').value.trim();
@@ -792,6 +842,15 @@
     document.getElementById('resetButton').addEventListener('click', () => {
       bonsList.innerHTML = '';
       addBons(1).querySelector('.ean-input').focus();
+    });
+
+    const assistToggle = document.getElementById('assistToggle');
+    assistToggle.checked = assistanceActive;
+    assistToggle.addEventListener('change', function () {
+      assistanceActive = this.checked;
+      try { localStorage.setItem(CLE_ASSISTANCE, assistanceActive ? 'on' : 'off'); } catch (e) { /* stockage indisponible */ }
+      if (assistanceActive) appliquerMemoirePartout();
+      else effacerAutoRemplis();
     });
 
     // ---- Modales (mentions légales + aide) ----
