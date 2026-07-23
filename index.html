@@ -305,6 +305,8 @@
     .montant-block .label { display: block; font-weight: 700; color: var(--muted); text-transform: uppercase; font-size: 8px; letter-spacing: .5px; }
     input.montant-input { font-size: 30px; font-weight: 900; color: var(--cf-red); width: 100%; text-align: center; }
     .layout-horizontal input.montant-input { font-size: 34px; }
+    /* montant pré-rempli depuis la mémoire : repère à l'écran, neutre à l'impression */
+    input.montant-input.auto-rempli { background: #fff6da; border-radius: 3px; }
 
     /* Validité : boîte bordée (lisible en N&B) */
     .ga-validity { padding: 0 10px; }
@@ -377,6 +379,7 @@
       .bon-container { zoom: 1 !important; box-shadow: none; margin: 0; outline: none !important; }
       .bon-actions, .bon-index, .barcode-error { display: none !important; }
       .field::placeholder { color: transparent !important; }
+      input.montant-input.auto-rempli { background: transparent !important; }
       input.field:focus { background: transparent; border-bottom-color: transparent; }
       html, body { height: auto !important; min-height: 0 !important; background: #fff; }
       #bonsList { display: block; }
@@ -455,7 +458,8 @@
       <h2 id="legalTitle">⚖️ Mentions légales</h2>
       <p>© <span id="legalYear"></span> DESJARDINS Bryan - Tous droits réservés.</p>
       <p>Cette application, son code et sa conception demeurent la propriété exclusive de l'auteur. L'auteur concède à l'Hypermarché Carrefour Vannes une simple licence d'utilisation personnelle, non exclusive et révocable à tout moment, sans transfert d'aucun droit de propriété. Toute reproduction, copie, modification ou déploiement par un tiers sans accord écrit préalable de l'auteur est strictement interdit.</p>
-      <p><strong>Usage</strong> : outil interne de réimpression de bons d'achat. Il ne collecte ni ne conserve aucune donnée personnelle ; les informations saisies servent uniquement à générer le bon à l'écran, le temps de l'impression. Visuel non officiel, sans valeur contractuelle.</p>
+      <p><strong>Usage</strong> : outil interne de réimpression de bons d'achat. Visuel non officiel, sans valeur contractuelle.</p>
+      <p><strong>Données</strong> : aucune donnée personnelle n'est collectée ni conservée (aucune information relative aux clients n'est saisie). Afin d'assister la saisie, l'application mémorise uniquement l'association entre un code EAN et son montant, au moment de l'impression, dans une feuille de calcul privée accessible au seul auteur et à l'établissement. Les bons en cours de préparation ne sont pas sauvegardés.</p>
       <p><strong>Responsabilité</strong> : l'auteur fournit l'infrastructure technique « telle quelle ». L'usage conforme de l'outil relève de la direction de l'établissement utilisateur.</p>
     </div>
   </div>
@@ -468,11 +472,12 @@
       <ol class="help-list">
         <li><b>Format</b> : choisissez Vertical (5×10 cm, 6 par page) ou Horizontal (12,35×5 cm, 4 par page).</li>
         <li><b>Remplir</b> : montant, dates de validité et code EAN. Le code-barres se génère automatiquement (EAN-13 / EAN-8, sinon CODE128).</li>
+        <li><b>Montant automatique</b> : si le code EAN a déjà été imprimé auparavant, le montant se remplit tout seul sur fond jaune. Vérifiez-le, et corrigez-le si besoin : votre correction fera foi la prochaine fois.</li>
         <li><b>Saisie rapide</b> : la touche Entrée passe au champ suivant ; sur le dernier champ, elle crée un nouveau bon.</li>
         <li><b>Plusieurs bons</b> : réglez la quantité (+ / −) puis « Ajouter ». Survolez un bon pour le dupliquer (⧉) ou le supprimer (×).</li>
         <li><b>Contrôle</b> : le compteur indique le nombre de bons et de pages A4 ; un bon incomplet (sans montant ou EAN) est surligné en orange.</li>
         <li><b>Imprimer</b> : le bouton Imprimer lance une page A4 à taille réelle, avec repères de découpe.</li>
-        <li><b>À savoir</b> : rien n'est enregistré ; recharger la page efface tout.</li>
+        <li><b>À savoir</b> : les bons en cours ne sont pas sauvegardés, recharger la page efface tout. Seule l'association entre un code EAN et son montant est mémorisée, au moment de l'impression.</li>
       </ol>
     </div>
   </div>
@@ -536,6 +541,47 @@
     const PER_PAGE = { vertical: 6, horizontal: 4 };
     const PAGE_MARGIN_MM = 10;
 
+    /* ---------- Mémoire EAN -> montant ----------
+       Chargée une seule fois au démarrage, en tâche de fond : aucun appel
+       réseau pendant la saisie. En cas d'échec, l'app fonctionne normalement. */
+    let memoire = {};
+    const serveurDispo = () =>
+      typeof google !== 'undefined' && google.script && google.script.run;
+
+    function chargerMemoire() {
+      if (!serveurDispo()) return;
+      google.script.run
+        .withSuccessHandler(m => { memoire = m || {}; })
+        .withFailureHandler(() => { /* échec silencieux */ })
+        .getMemoire();
+    }
+
+    // Pré-remplit le montant si l'EAN est connu et que le champ est vide.
+    function appliquerMemoire(card, ean) {
+      const montant = card.querySelector('.montant-input');
+      if (montant.value.trim()) return;        // jamais d'écrasement
+      const connu = memoire[ean];
+      if (!connu) return;
+      montant.value = connu;
+      montant.classList.add('auto-rempli');
+      montant.title = 'Montant pré-rempli depuis la mémoire, à vérifier';
+    }
+
+    // Envoi à l'impression, en tâche de fond : ne retarde jamais l'impression.
+    function memoriser() {
+      if (!serveurDispo()) return;
+      const entrees = [];
+      allWraps().forEach(w => {
+        const ean = w.querySelector('.ean-input').value.trim();
+        const montant = w.querySelector('.montant-input').value.trim();
+        if (ean && montant) entrees.push({ ean, montant });
+      });
+      if (!entrees.length) return;
+      google.script.run
+        .withFailureHandler(() => { /* échec silencieux */ })
+        .enregistrerMemoire(entrees);
+    }
+
     const toISO = d => d.toISOString().split('T')[0];
     function defaultDates() {
       const today = new Date(), fin = new Date();
@@ -577,9 +623,13 @@
       ean.addEventListener('input', function () {
         const cleaned = this.value.replace(/\D/g, '');
         if (cleaned !== this.value) this.value = cleaned;
-        updateBarcode(card); updateStatus();
+        updateBarcode(card); appliquerMemoire(card, cleaned); updateStatus();
       });
       const montant = card.querySelector('.montant-input');
+      // dès que l'hôtesse touche au montant, ce n'est plus une valeur mémorisée
+      montant.addEventListener('input', function () {
+        this.classList.remove('auto-rempli'); this.title = '';
+      });
       montant.addEventListener('blur', function () {
         const raw = this.value.replace(/[^\d,.]/g, '').replace('.', ',');
         if (!raw) { this.value = ''; updateStatus(); return; }
@@ -711,7 +761,10 @@
       const last = addBons(Math.max(1, Math.min(50, +qtyInput.value || 1)));
       last.querySelector('.ean-input').focus();
     });
-    document.getElementById('printButton').addEventListener('click', () => window.print());
+    document.getElementById('printButton').addEventListener('click', () => {
+      memoriser();          // tâche de fond, ne retarde pas l'impression
+      window.print();
+    });
     document.getElementById('resetButton').addEventListener('click', () => {
       bonsList.innerHTML = ''; addBons(1);
     });
@@ -735,6 +788,7 @@
     // Init
     addBons(1);
     setLayout('horizontal');
+    chargerMemoire();   // non bloquant : l'app est déjà utilisable
   </script>
 </body>
 </html>
