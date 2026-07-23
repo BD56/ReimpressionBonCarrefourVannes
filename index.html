@@ -551,20 +551,41 @@
     function chargerMemoire() {
       if (!serveurDispo()) return;
       google.script.run
-        .withSuccessHandler(m => { memoire = m || {}; })
+        .withSuccessHandler(m => { memoire = m || {}; appliquerMemoirePartout(); })
         .withFailureHandler(() => { /* échec silencieux */ })
         .getMemoire();
     }
 
-    // Pré-remplit le montant si l'EAN est connu et que le champ est vide.
+    /* Pré-remplit le montant selon l'EAN.
+       Une valeur saisie à la main n'est JAMAIS touchée. En revanche une valeur
+       venue de la mémoire (repère jaune) suit l'EAN : elle est remplacée si le
+       nouvel EAN est connu, effacée sinon. Sans quoi un montant fantôme
+       resterait collé à un EAN qui n'a rien à voir. */
     function appliquerMemoire(card, ean) {
       const montant = card.querySelector('.montant-input');
-      if (montant.value.trim()) return;        // jamais d'écrasement
+      const automatique = montant.classList.contains('auto-rempli');
+      if (montant.value.trim() && !automatique) return;
+
       const connu = memoire[ean];
-      if (!connu) return;
-      montant.value = connu;
-      montant.classList.add('auto-rempli');
-      montant.title = 'Montant pré-rempli depuis la mémoire, à vérifier';
+      if (connu) {
+        montant.value = connu;
+        montant.classList.add('auto-rempli');
+        montant.title = 'Montant pré-rempli depuis la mémoire, à vérifier';
+      } else if (automatique) {
+        montant.value = '';
+        montant.classList.remove('auto-rempli');
+        montant.title = '';
+      }
+    }
+
+    // Ré-applique la mémoire aux bons déjà saisis, quand elle arrive après la frappe.
+    function appliquerMemoirePartout() {
+      allWraps().forEach(w => {
+        const card = w.querySelector('.bon-container');
+        const ean = card.querySelector('.ean-input').value.trim();
+        if (ean) appliquerMemoire(card, ean);
+      });
+      updateStatus();
     }
 
     // Envoi à l'impression, en tâche de fond : ne retarde jamais l'impression.
@@ -683,7 +704,7 @@
       ['.date-debut', '.date-fin', '.montant-input', '.ean-input'].forEach(sel => {
         dst.querySelector(sel).value = src.querySelector(sel).value;
       });
-      updateBarcode(dst); refreshState();
+      updateBarcode(dst); updateStatus();   // addBons a déjà reconstruit les pages
     }
     function removeBon(wrap) {
       if (allWraps().length <= 1) return;
@@ -727,7 +748,10 @@
         w.querySelector('.bon-index').textContent = i + 1;
         const ean = w.querySelector('.ean-input').value.trim();
         const montant = w.querySelector('.montant-input').value.trim();
-        const bad = !ean || !montant;
+        // un bon totalement vierge n'est pas « incomplet », il n'est pas commencé :
+        // on n'alerte que sur un bon entamé mais partiel.
+        const vierge = !ean && !montant;
+        const bad = !vierge && (!ean || !montant);
         w.classList.toggle('incomplete', bad);
         if (bad) incomplete++;
         w.querySelector('.bon-remove').style.display = count <= 1 ? 'none' : '';
@@ -761,12 +785,13 @@
       const last = addBons(Math.max(1, Math.min(50, +qtyInput.value || 1)));
       last.querySelector('.ean-input').focus();
     });
-    document.getElementById('printButton').addEventListener('click', () => {
-      memoriser();          // tâche de fond, ne retarde pas l'impression
-      window.print();
-    });
+    document.getElementById('printButton').addEventListener('click', () => window.print());
+    // Branché sur l'impression elle-même : couvre le bouton ET le Ctrl+P du navigateur.
+    window.addEventListener('beforeprint', memoriser);
+
     document.getElementById('resetButton').addEventListener('click', () => {
-      bonsList.innerHTML = ''; addBons(1);
+      bonsList.innerHTML = '';
+      addBons(1).querySelector('.ean-input').focus();
     });
 
     // ---- Modales (mentions légales + aide) ----
