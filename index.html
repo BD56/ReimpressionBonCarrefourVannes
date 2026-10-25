@@ -398,6 +398,7 @@
     /* icône calendrier réduite : la date n'est plus rognée par l'icône */
     input.date-input { width: 78px; font-size: 10px; font-weight: 800; color: var(--cf-blue-dark); }
     input.date-input::-webkit-calendar-picker-indicator { margin-left: 1px; padding: 0; width: 9px; height: 9px; cursor: pointer; }
+    input.date-input.vide { color: #b6bcc6; }   /* date de fin pas encore saisie : grisée comme un champ vide */
 
     /* Séparateurs « ticket » */
     .layout-vertical .ga-header  { border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
@@ -447,6 +448,7 @@
       .bon-actions, .bon-index, .barcode-error { display: none !important; }
       .field::placeholder { color: transparent !important; }
       input.date-input::-webkit-calendar-picker-indicator { display: none; }
+      input.date-input.vide { color: transparent !important; }   /* pas de « jj/mm/aaaa » imprimé */
       input.montant-input.auto-rempli { background: transparent !important; }
       input.field:focus { background: transparent; border-bottom-color: transparent; }
       html, body { height: auto !important; min-height: 0 !important; background: #fff; }
@@ -565,11 +567,11 @@
       <h2 id="helpTitle"><svg class="ico"><use href="#i-aide"/></svg>Aide</h2>
       <ol class="help-list">
         <li><b>Format</b> : choisissez Vertical (5×10 cm, 6 par page) ou Horizontal (12,35×5 cm, 4 par page).</li>
-        <li><b>Remplir</b> : montant, dates de validité et code EAN. Le code-barres se génère automatiquement (EAN-13 / EAN-8, sinon CODE128).</li>
+        <li><b>Remplir</b> : montant, dates de validité et code EAN. Le début est réglé sur aujourd'hui, la fin est à saisir (celle du bon d'origine). Le code-barres se génère automatiquement (EAN-13 / EAN-8, sinon CODE128).</li>
         <li><b>Montant automatique</b> : si le code EAN a déjà été imprimé auparavant, le montant se remplit tout seul sur fond jaune. Vérifiez-le, et corrigez-le si besoin : votre correction fera foi la prochaine fois.</li>
         <li><b>Saisie rapide</b> : la touche Entrée passe au champ suivant ; sur le dernier champ, elle crée un nouveau bon.</li>
         <li><b>Plusieurs bons</b> : réglez la quantité (+ / −) puis « Ajouter ». Survolez un bon : ses boutons en haut à droite permettent de le dupliquer ou de le supprimer.</li>
-        <li><b>Contrôle</b> : le compteur indique le nombre de bons et de pages A4 ; un bon incomplet (sans montant ou EAN) est surligné en orange.</li>
+        <li><b>Contrôle</b> : le compteur indique le nombre de bons et de pages A4 ; un bon incomplet (sans montant, EAN ou date de fin) est surligné en orange.</li>
         <li><b>Imprimer</b> : le bouton Imprimer lance une page A4 à taille réelle, avec repères de découpe.</li>
         <li><b>À savoir</b> : les bons en cours ne sont pas sauvegardés, recharger la page efface tout. Seule l'association entre un code EAN et son montant est mémorisée, au moment de l'impression.</li>
       </ol>
@@ -678,11 +680,19 @@
         .enregistrerMemoire(entrees);
     }
 
-    const toISO = d => d.toISOString().split('T')[0];
-    function defaultDates() {
-      const today = new Date(), fin = new Date();
-      fin.setDate(fin.getDate() + 30);
-      return [toISO(today), toISO(fin)];
+    // Date du jour en heure locale (toISOString donnait la veille entre minuit et 2 h).
+    function aujourdhui() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    /* Date de fin : vide par défaut (c'est celle du bon d'origine, à saisir),
+       et jamais avant le début dans le calendrier. */
+    function majDateFin(card) {
+      const debut = card.querySelector('.date-debut');
+      const fin = card.querySelector('.date-fin');
+      fin.min = debut.value;
+      fin.classList.toggle('vide', !fin.value);
     }
 
     function pickFormat(v) {
@@ -768,9 +778,10 @@
       wrap.querySelector('.bon-remove').addEventListener('click', () => removeBon(wrap));
       wrap.querySelector('.bon-dup').addEventListener('click', () => duplicateBon(wrap));
 
-      const [s, e] = defaultDates();
-      card.querySelector('.date-debut').value = s;
-      card.querySelector('.date-fin').value = e;
+      card.querySelector('.date-debut').value = aujourdhui();
+      ['.date-debut', '.date-fin'].forEach(sel =>
+        card.querySelector(sel).addEventListener('input', () => { majDateFin(card); updateStatus(); }));
+      majDateFin(card);
       applyLayout(card);
       updateBarcode(card);
     }
@@ -799,7 +810,7 @@
       ['.date-debut', '.date-fin', '.montant-input', '.ean-input'].forEach(sel => {
         dst.querySelector(sel).value = src.querySelector(sel).value;
       });
-      updateBarcode(dst); refreshState();
+      majDateFin(dst); updateBarcode(dst); refreshState();
     }
     function removeBon(wrap) {
       if (allWraps().length <= 1) return;
@@ -844,7 +855,8 @@
         w.querySelector('.bon-index').textContent = i + 1;
         const ean = w.querySelector('.ean-input').value.trim();
         const montant = w.querySelector('.montant-input').value.trim();
-        const bad = !ean || !montant;
+        const fin = w.querySelector('.date-fin').value;
+        const bad = !ean || !montant || !fin;
         w.classList.toggle('incomplete', bad);
         if (bad) incomplete++;
         w.querySelector('.bon-remove').style.display = count <= 1 ? 'none' : '';
@@ -856,7 +868,7 @@
       if (incomplete) {
         warn.classList.add('show');
         document.getElementById('warnText').textContent =
-          incomplete + (incomplete > 1 ? ' bons incomplets' : ' bon incomplet') + ' (EAN ou montant manquant)';
+          incomplete + (incomplete > 1 ? ' bons incomplets' : ' bon incomplet') + ' (EAN, montant ou date de fin manquant)';
       } else warn.classList.remove('show');
       pageStyle.textContent = '@page { size: A4 portrait; margin: ' + PAGE_MARGIN_MM + 'mm; }';
     }
