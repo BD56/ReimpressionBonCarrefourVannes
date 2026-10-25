@@ -303,7 +303,8 @@
     /* Montant (héros, rouge) */
     .ga-montant { text-align: center; padding: 2px 8px 8px; }
     .montant-block .label { display: block; font-weight: 700; color: var(--muted); text-transform: uppercase; font-size: 8px; letter-spacing: .5px; }
-    input.montant-input { font-size: 30px; font-weight: 900; color: var(--cf-red); width: 100%; text-align: center; }
+    /* input.field (plus bas) impose la couleur d'encre : on double la classe pour que le rouge l'emporte */
+    input.field.montant-input { font-size: 30px; font-weight: 900; color: var(--cf-red); width: 100%; text-align: center; }
     .layout-horizontal input.montant-input { font-size: 34px; }
     /* montant pré-rempli depuis la mémoire : repère à l'écran, neutre à l'impression */
     input.montant-input.auto-rempli { background: #fff6da; border-radius: 3px; }
@@ -330,7 +331,9 @@
     input.field:hover { border-bottom-color: var(--line); }
     input.field:focus { border-bottom-color: var(--cf-blue); background: var(--cf-blue-50); }
     input.field::placeholder { color: #b6bcc6; }
-    input.date-input { width: 76px; font-size: 10px; font-weight: 800; color: var(--cf-blue-dark); }
+    /* icône calendrier réduite : la date n'est plus rognée par l'icône */
+    input.date-input { width: 78px; font-size: 10px; font-weight: 800; color: var(--cf-blue-dark); }
+    input.date-input::-webkit-calendar-picker-indicator { margin-left: 1px; padding: 0; width: 9px; height: 9px; cursor: pointer; }
 
     /* Séparateurs « ticket » */
     .layout-vertical .ga-header  { border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
@@ -379,6 +382,7 @@
       .bon-container { zoom: 1 !important; box-shadow: none; margin: 0; outline: none !important; }
       .bon-actions, .bon-index, .barcode-error { display: none !important; }
       .field::placeholder { color: transparent !important; }
+      input.date-input::-webkit-calendar-picker-indicator { display: none; }
       input.montant-input.auto-rempli { background: transparent !important; }
       input.field:focus { background: transparent; border-bottom-color: transparent; }
       html, body { height: auto !important; min-height: 0 !important; background: #fff; }
@@ -594,10 +598,30 @@
       if (/^\d{8}$/.test(v)) return "EAN8";
       return "CODE128";
     }
+    /* Réduit les chiffres de l'EAN quand ils ne tiennent plus dans la largeur du bon
+       (codes longs en CODE128). On mesure le texte au canvas : la largeur de défilement
+       d'un input n'est pas fiable. */
+    const mesureur = document.createElement('canvas').getContext('2d');
+    function ajusterEan(input) {
+      input.style.fontSize = ''; input.style.letterSpacing = '';
+      const texte = input.value;
+      if (!texte) return;
+      const cs = getComputedStyle(input);
+      const taille = parseFloat(cs.fontSize), espace = parseFloat(cs.letterSpacing) || 0;
+      mesureur.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      const besoin = mesureur.measureText(texte).width + espace * texte.length;
+      const dispo = input.clientWidth - 4;
+      if (besoin <= dispo) return;
+      const k = dispo / besoin;
+      input.style.fontSize = (taille * k) + 'px';
+      input.style.letterSpacing = (espace * k) + 'px';
+    }
+
     function updateBarcode(card) {
       const ean = card.querySelector('.ean-input').value.trim();
       const container = card.querySelector('.barcode-svg-container');
       const errEl = card.querySelector('.barcode-error');
+      ajusterEan(card.querySelector('.ean-input'));
       container.innerHTML = ''; errEl.textContent = '';
       if (!ean) return;
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -701,6 +725,7 @@
       document.querySelectorAll('.format-card').forEach(c =>
         c.classList.toggle('active', c.dataset.fmt === mode));
       bonsList.querySelectorAll('.bon-container').forEach(applyLayout);
+      bonsList.querySelectorAll('.ean-input').forEach(ajusterEan);   // la largeur dispo dépend du format
       refreshState();
     }
 
