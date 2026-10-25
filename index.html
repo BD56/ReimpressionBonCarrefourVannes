@@ -9,10 +9,13 @@
   <style id="pageStyle">@page { size: A4 portrait; margin: 10mm; }</style>
   <style>
     /* =========================================================
-       MAQUETTE - proposition de design modernisé
+       Interface « Comptoir » (même famille que Gestion chèques différés) :
+       clair, police du système, icônes SVG, accent sarcelle.
+       Le bon, lui, garde ses couleurs Carrefour.
        (poste fixe • aperçu agrandi volontaire • sans persistance)
        ========================================================= */
     :root {
+      /* Bon : couleurs Carrefour */
       --cf-blue: #004E9F;
       --cf-blue-dark: #003a78;
       --cf-blue-50: #eef4fc;
@@ -22,227 +25,287 @@
       --line: #c7ccd4;
       --paper: #ffffff;
 
-      /* Tokens UI modernisés */
-      --bg-app: #f3f5f9;
-      --bg-panel: #ffffff;
-      --bg-rail: #0e2034;          /* sidebar foncée, plus haut de gamme */
-      --rail-ink: #e8eef6;
-      --rail-muted: #9fb1c7;
-      --rail-line: rgba(255,255,255,.10);
-      --radius: 14px;
-      --radius-sm: 10px;
-      --shadow-sm: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
-      --shadow-md: 0 8px 24px rgba(16,24,40,.12);
-      --shadow-lg: 0 20px 50px rgba(8,20,45,.22);
-      --focus: 0 0 0 3px rgba(0,78,159,.22);
-      --rail-w: 320px;
+      /* Interface : palette Comptoir */
+      --fond: #f5f3f0;
+      --surface: #ffffff;
+      --encre: #1c1917;
+      --doux: #6f6863;
+      --trait: #e5dfd8;
+      --trait-fort: #d3cbc2;
+      --champ: #fbfaf8;
+      --accent: #0f766e;
+      --accent-fonce: #0b5d57;
+      --accent-doux: #e3f1ef;
+      --danger: #c81e1e;
+      --danger-doux: #fcebea;
+      --orange: #b45309;
+      --orange-doux: #fdf1e2;
+      --orange-vif: #d97706;
+      --texte: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+      --shadow-sm: 0 1px 2px rgba(28,25,23,.06), 0 1px 3px rgba(28,25,23,.10);
+      --shadow-lg: 0 14px 34px rgba(28,25,23,.13);
+      --haut-h: 64px;
+      --panneau-w: 340px;
+      color-scheme: light;
     }
 
     * { box-sizing: border-box; }
+    button, input { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 
     html, body { height: 100%; }
     body {
       margin: 0;
-      font-family: "Inter", "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
-      color: var(--ink);
-      background: var(--bg-app);
+      font-family: var(--texte);
+      font-size: 15px;
+      color: var(--encre);
+      background: var(--fond);
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ===================== SIDEBAR (rail) ===================== */
-    .rail {
-      position: fixed;
-      top: 0; right: 0;
-      width: var(--rail-w);
-      height: 100vh;
-      background: radial-gradient(120% 80% at 100% 0%, #16314f 0%, var(--bg-rail) 55%);
-      color: var(--rail-ink);
-      display: flex;
-      flex-direction: column;
-      z-index: 20;
-      border-left: 1px solid var(--rail-line);
+    /* Icônes (sprite en tête de page) : traits de la couleur du texte */
+    .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .ico {
+      width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em;
+      fill: none; stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
     }
 
-    .rail__brand {
+    /* ===================== En-tête ===================== */
+    .haut {
+      position: sticky; top: 0; z-index: 20;
+      height: var(--haut-h);
       display: flex; align-items: center; gap: 12px;
-      padding: 22px 24px;
-      border-bottom: 1px solid var(--rail-line);
+      padding: 0 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--trait);
     }
-    .rail__logo {
-      width: 42px; height: 42px; flex: none;
-      background: #fff; border-radius: 11px;
+    .marque { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .logo {
+      width: 40px; height: 40px; flex: none;
+      border-radius: 10px; border: 1px solid var(--trait); background: #fff;
+      display: grid; place-items: center; overflow: hidden;
+    }
+    .logo img { width: 30px; height: auto; display: block; }
+    .marque b { display: block; font-size: 15.5px; }
+    .marque small { color: var(--doux); font-size: 12px; }
+    .puce {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 11px; border-radius: 999px;
+      font-size: 12.5px; font-weight: 650;
+      background: var(--accent-doux); color: var(--accent-fonce);
+      white-space: nowrap;
+    }
+    .puce .ico { width: 16px; height: 16px; }
+    .espace { flex: 1; }
+    .icone-btn {
+      width: 44px; height: 44px; padding: 0; flex: none;
+      border-radius: 12px; border: 1px solid var(--trait);
+      background: var(--surface); color: var(--encre);
+      display: grid; place-items: center; cursor: pointer;
+    }
+    .icone-btn:hover { background: var(--champ); border-color: var(--trait-fort); }
+    .icone-btn .ico { width: 20px; height: 20px; }
+
+    /* ===================== Panneau de commande (droite) ===================== */
+    .panneau {
+      position: fixed; top: var(--haut-h); right: 0; bottom: 0; z-index: 15;
+      width: var(--panneau-w);
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border-left: 1px solid var(--trait);
+    }
+    .panneau__corps { flex: 1; overflow-y: auto; padding: 22px 20px; }
+
+    /* Étapes numérotées */
+    .etape { display: grid; grid-template-columns: 32px 1fr; gap: 12px; }
+    .etape + .etape { margin-top: 22px; }
+    .num {
+      width: 32px; height: 32px; border-radius: 50%;
       display: grid; place-items: center;
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
+      font-weight: 800; font-size: 13px;
+      background: var(--encre); color: #fff;
     }
-    .rail__logo img { width: 34px; height: auto; display: block; }
-    .rail__brand h1 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
-    .rail__brand p  { margin: 2px 0 0; font-size: 12px; color: var(--rail-muted); }
-    .help-btn {
-      margin-left: auto; flex: none; cursor: pointer;
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 1px solid var(--rail-line); background: rgba(255,255,255,.06);
-      color: var(--rail-ink); font-size: 14px; font-weight: 700; line-height: 1;
-      transition: background .15s, border-color .15s;
+    .etape h2 {
+      margin: 0 0 10px; height: 32px; line-height: 32px;
+      font-size: 12px; font-weight: 750; letter-spacing: .7px;
+      text-transform: uppercase; color: var(--doux);
     }
-    .help-btn:hover { background: rgba(255,255,255,.14); border-color: #2f8bff; }
+    .etape-corps { min-width: 0; }
 
-    .rail__body { flex: 1; overflow-y: auto; padding: 22px 24px; }
-    .group { margin-bottom: 26px; }
-    .group__label {
-      font-size: 11px; font-weight: 700; letter-spacing: .8px;
-      text-transform: uppercase; color: var(--rail-muted);
-      margin: 0 0 12px;
-    }
-
-    /* ---- Toggle format avec icônes d'orientation ---- */
+    /* Format : deux cartes avec la silhouette du bon */
     .format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .format-card {
-      appearance: none; border: 1.5px solid var(--rail-line);
-      background: rgba(255,255,255,.04); color: var(--rail-ink);
-      border-radius: var(--radius-sm); padding: 14px 10px;
-      cursor: pointer; text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      transition: border-color .15s, background .15s, transform .05s;
+      appearance: none; cursor: pointer;
+      border: 1.5px solid var(--trait-fort); border-radius: 12px;
+      background: var(--surface); color: var(--encre);
+      padding: 14px 8px 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      transition: border-color .15s, background .15s, box-shadow .15s;
     }
-    .format-card:hover { background: rgba(255,255,255,.08); }
-    .format-card:active { transform: translateY(1px); }
+    .format-card:hover { background: var(--champ); }
     .format-card .glyph {
-      border: 2px solid currentColor; border-radius: 4px; opacity: .85;
+      border: 2px solid currentColor; border-radius: 4px; margin-bottom: 6px; opacity: .8;
     }
-    .format-card[data-fmt="vertical"]   .glyph { width: 22px; height: 34px; }
-    .format-card[data-fmt="horizontal"] .glyph { width: 36px; height: 18px; }
-    .format-card .name { font-size: 13px; font-weight: 700; }
-    .format-card .dim  { font-size: 11px; color: var(--rail-muted); }
+    .format-card[data-fmt="vertical"]   .glyph { width: 20px; height: 32px; }
+    .format-card[data-fmt="horizontal"] .glyph { width: 36px; height: 16px; margin: 8px 0 14px; }
+    .format-card .name { font-size: 14px; font-weight: 700; }
+    .format-card .dim  { font-size: 11.5px; color: var(--doux); }
     .format-card.active {
-      border-color: #2f8bff;
-      background: rgba(47,139,255,.16);
-      box-shadow: 0 0 0 1px rgba(47,139,255,.4) inset;
+      border-color: var(--accent); background: var(--accent-doux); color: var(--accent-fonce);
+      box-shadow: 0 0 0 3px var(--accent-doux);
     }
-    .format-card.active .dim { color: #bcd6ff; }
+    .format-card.active .dim { color: var(--accent-fonce); }
 
-    /* ---- Ajout par lot ---- */
-    .add-row { display: flex; gap: 10px; align-items: stretch; }
+    /* Ajout par lot */
+    .add-row { display: flex; gap: 10px; }
     .qty {
-      display: flex; align-items: center; gap: 0;
-      border: 1.5px solid var(--rail-line); border-radius: var(--radius-sm);
-      background: rgba(255,255,255,.04); overflow: hidden; flex: none;
+      display: flex; align-items: stretch; flex: none; height: 48px;
+      border: 1.5px solid var(--trait-fort); border-radius: 12px;
+      background: var(--surface); overflow: hidden;
     }
+    .qty:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-doux); }
     .qty button {
-      width: 38px; border: none; background: transparent; color: var(--rail-ink);
-      font-size: 18px; cursor: pointer; line-height: 1;
+      width: 38px; border: none; background: transparent; color: var(--encre);
+      cursor: pointer; display: grid; place-items: center; padding: 0;
     }
-    .qty button:hover { background: rgba(255,255,255,.08); }
+    .qty button:hover { background: var(--champ); }
     .qty input {
-      width: 40px; border: none; background: transparent; color: var(--rail-ink);
-      text-align: center; font-size: 15px; font-weight: 700; -moz-appearance: textfield;
+      width: 38px; border: none; background: transparent; color: var(--encre);
+      text-align: center; font-size: 16px; font-weight: 700; -moz-appearance: textfield;
     }
+    .qty input:focus { outline: none; }
     .qty input::-webkit-outer-spin-button,
     .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
     .btn {
-      appearance: none; border: none; cursor: pointer;
-      border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
-      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-      padding: 12px 16px; transition: background .15s, transform .05s, box-shadow .15s;
+      appearance: none; cursor: pointer;
+      border-radius: 12px; font-weight: 700; font-size: 15px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 0 16px; height: 48px;
+      transition: background .15s, border-color .15s, box-shadow .15s;
     }
-    .btn:active { transform: translateY(1px); }
-    .btn--add    { flex: 1; background: rgba(255,255,255,.08); color: var(--rail-ink); border: 1.5px solid var(--rail-line); }
-    .btn--add:hover { background: rgba(255,255,255,.14); }
-    .btn--ghost  { width: 100%; background: transparent; color: var(--rail-muted); border: 1.5px solid var(--rail-line); }
-    .btn--ghost:hover { color: var(--rail-ink); background: rgba(255,255,255,.06); }
+    .btn--add {
+      flex: 1; border: 1.5px solid var(--trait-fort);
+      background: var(--surface); color: var(--encre);
+    }
+    .btn--add:hover { background: var(--champ); border-color: var(--doux); }
+    .lien-btn {
+      margin-top: 24px; padding: 6px 0;
+      background: none; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 7px;
+      color: var(--doux); font-size: 13.5px; font-weight: 600;
+    }
+    .lien-btn:hover { color: var(--danger); text-decoration: underline; text-underline-offset: 3px; }
 
-    /* ===================== Pied du rail (résumé + impression) ===================== */
-    .rail__foot {
-      border-top: 1px solid var(--rail-line);
-      padding: 18px 24px 22px;
-      background: rgba(0,0,0,.18);
+    /* ===================== Pied du panneau (résumé + impression) ===================== */
+    .panneau__pied {
+      border-top: 1px solid var(--trait);
+      padding: 16px 20px 14px;
+      background: var(--champ);
     }
-    .summary {
-      display: flex; gap: 10px; margin-bottom: 14px;
-    }
+    .summary { display: flex; gap: 10px; margin-bottom: 12px; }
     .stat {
-      flex: 1; background: rgba(255,255,255,.05);
-      border: 1px solid var(--rail-line); border-radius: var(--radius-sm);
+      flex: 1; background: var(--surface);
+      border: 1px solid var(--trait); border-radius: 12px;
       padding: 10px 12px;
     }
-    .stat .num { font-size: 22px; font-weight: 800; line-height: 1; }
-    .stat .cap { font-size: 11px; color: var(--rail-muted); margin-top: 4px; }
+    .stat .num-stat { font-size: 22px; font-weight: 800; line-height: 1; }
+    .stat .cap { font-size: 12px; color: var(--doux); margin-top: 4px; }
     .warn {
       display: none; align-items: center; gap: 8px;
-      font-size: 12px; color: #ffd7a6; margin-bottom: 12px;
+      margin-bottom: 12px; padding: 8px 12px; border-radius: 10px;
+      font-size: 13px; font-weight: 650;
+      background: var(--orange-doux); color: var(--orange);
     }
     .warn.show { display: flex; }
-    .warn .dot { width: 8px; height: 8px; border-radius: 50%; background: #f5a524; flex: none; }
+    .warn .ico { width: 16px; height: 16px; }
 
     .btn--print {
-      width: 100%; padding: 15px; font-size: 15px;
-      background: linear-gradient(180deg, #0a6cff 0%, var(--cf-blue) 100%);
-      color: #fff; box-shadow: 0 8px 20px rgba(0,78,159,.35);
+      width: 100%; height: 56px; border: 0; border-radius: 14px;
+      background: var(--accent); color: #fff; font-size: 16.5px; font-weight: 750;
     }
-    .btn--print:hover { box-shadow: 0 10px 26px rgba(0,78,159,.45); }
+    .btn--print:hover { background: var(--accent-fonce); }
+    .btn--print .ico { width: 20px; height: 20px; }
+    .touche {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 11px; font-weight: 700;
+      padding: 2px 6px; border-radius: 5px;
+      background: rgba(255,255,255,.18);
+    }
 
     /* lien discret mentions légales */
     .legal-link {
-      margin-top: 12px; width: 100%;
+      margin-top: 10px; width: 100%;
       background: none; border: none; cursor: pointer;
-      color: var(--rail-muted); font-size: 11px; letter-spacing: .3px;
-      padding: 4px; transition: color .15s;
+      color: var(--doux); font-size: 11.5px;
+      padding: 4px;
     }
-    .legal-link:hover { color: var(--rail-ink); text-decoration: underline; }
+    .legal-link:hover { color: var(--encre); text-decoration: underline; text-underline-offset: 3px; }
 
-    /* ===================== Modale mentions légales ===================== */
+    /* ===================== Fenêtres (mentions légales, aide) ===================== */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 100;
-      background: rgba(8,16,30,.55); backdrop-filter: blur(2px);
+      background: rgba(28,25,23,.45);
       display: flex; align-items: center; justify-content: center; padding: 24px;
     }
     .modal-overlay[hidden] { display: none; }
     .modal {
-      position: relative; background: #fff; color: var(--ink);
-      max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto;
-      border-radius: 14px; padding: 28px 30px;
-      box-shadow: 0 24px 60px rgba(8,20,45,.35);
+      position: relative; background: var(--surface); color: var(--encre);
+      max-width: 580px; width: 100%; max-height: 85vh; overflow-y: auto;
+      border-radius: 16px; border: 1px solid var(--trait);
+      padding: 24px 26px 26px;
+      box-shadow: 0 24px 60px rgba(28,25,23,.28);
     }
-    .modal h2 { margin: 0 0 16px; font-size: 18px; color: var(--cf-blue-dark); }
-    .modal p { margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: #2c3440; }
+    .modal h2 {
+      display: flex; align-items: center; gap: 10px;
+      margin: 0 0 16px; padding-right: 48px; font-size: 19px;
+    }
+    .modal h2 .ico { width: 22px; height: 22px; color: var(--accent); }
+    .modal p { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: #3a3430; }
     .modal p:last-child { margin-bottom: 0; }
-    .modal-close {
-      position: absolute; top: 12px; right: 14px;
-      width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
-      background: #eef1f6; color: var(--ink); font-size: 18px; line-height: 1;
+    .modal-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 10px; }
+    .help-list { margin: 0; padding: 0; list-style: none; counter-reset: aide; }
+    .help-list li {
+      counter-increment: aide; position: relative; padding-left: 36px;
+      font-size: 14px; line-height: 1.5; color: #3a3430; margin-bottom: 12px;
     }
-    .modal-close:hover { background: #e1e6ee; }
-    .help-list { margin: 0; padding-left: 20px; }
-    .help-list li { font-size: 13px; line-height: 1.5; color: #2c3440; margin-bottom: 10px; }
+    .help-list li::before {
+      content: counter(aide);
+      position: absolute; left: 0; top: -1px;
+      width: 24px; height: 24px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--encre); color: #fff; font-size: 12px; font-weight: 800;
+    }
     .help-list li:last-child { margin-bottom: 0; }
-    .help-list b { color: var(--cf-blue-dark); }
+    .help-list b { color: var(--encre); }
 
     /* ===================== Zone de travail ===================== */
     .stage {
-      margin-right: var(--rail-w);
-      min-height: 100vh;
-      padding: 40px 36px 80px;
+      margin-right: var(--panneau-w);
+      min-height: calc(100vh - var(--haut-h));
+      padding: 28px 36px 80px;
       display: flex; flex-direction: column; align-items: center;
-      background:
-        radial-gradient(60% 50% at 50% -10%, rgba(0,78,159,.06), transparent 70%),
-        var(--bg-app);
     }
     .stage__head {
       width: 100%; max-width: 1160px;
-      display: flex; align-items: baseline; justify-content: space-between;
-      margin-bottom: 26px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 28px;
     }
-    .stage__head h2 { margin: 0; font-size: 17px; font-weight: 700; }
+    .stage__head h2 { margin: 0; font-size: 18px; font-weight: 750; }
     .stage__head .preview-note {
-      font-size: 12px; color: var(--muted);
-      background: #fff; border: 1px solid var(--line); border-radius: 999px;
-      padding: 5px 12px;
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 12.5px; font-weight: 600; color: var(--doux);
+      background: var(--surface); border: 1px solid var(--trait); border-radius: 999px;
+      padding: 6px 12px;
     }
+    .stage__head .preview-note .ico { width: 15px; height: 15px; }
 
     #bonsList {
       display: flex; flex-wrap: wrap; justify-content: center;
-      gap: 28px; max-width: 1160px; width: 100%;
+      gap: 32px; max-width: 1160px; width: 100%;
     }
 
     /* Bon agrandi à l'écran pour la lisibilité (impression à taille réelle).
@@ -260,10 +323,11 @@
       border: 1px solid var(--line);
       overflow: hidden;
       display: grid;
+      font-family: "Inter", "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
       transition: box-shadow .15s, outline-color .15s;
       outline: 2px solid transparent; outline-offset: 4px;
     }
-    .bon-wrap.incomplete .bon-container { outline-color: #f5a524; }
+    .bon-wrap.incomplete .bon-container { outline-color: var(--orange-vif); }
 
     /* Vertical : 5 × 10 cm - en-tête en haut, cœur centré, pied en bas */
     .bon-container.layout-vertical {
@@ -354,28 +418,28 @@
     }
     .bon-wrap:hover .bon-actions { opacity: 1; transform: translateY(0); }
     .bon-actions button {
-      width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer;
-      color: #fff; font-size: 14px; line-height: 1; box-shadow: var(--shadow-sm);
-      display: grid; place-items: center;
+      width: 34px; height: 34px; border-radius: 10px; cursor: pointer; padding: 0;
+      border: 1px solid var(--trait); background: var(--surface); color: var(--encre);
+      box-shadow: var(--shadow-sm); display: grid; place-items: center;
     }
-    .bon-dup { background: var(--cf-blue); }
-    .bon-dup:hover { background: var(--cf-blue-dark); }
-    .bon-remove { background: var(--cf-red); }
-    .bon-remove:hover { background: #b80016; }
+    .bon-actions .ico { width: 17px; height: 17px; }
+    .bon-dup:hover { color: var(--accent); border-color: var(--accent); }
+    .bon-remove:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-doux); }
 
-    /* badge n° de bon, repère discret */
+    /* pastille n° de bon, comme les étapes */
     .bon-index {
-      position: absolute; top: -10px; left: -10px;
-      background: var(--ink); color: #fff; font-size: 11px; font-weight: 700;
-      min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px;
+      position: absolute; top: -12px; left: -12px;
+      background: var(--encre); color: #fff; font-size: 12px; font-weight: 800;
+      min-width: 26px; height: 26px; padding: 0 8px; border-radius: 999px;
       display: grid; place-items: center; box-shadow: var(--shadow-sm); z-index: 3;
     }
+    .bon-wrap.incomplete .bon-index { background: var(--orange-vif); }
 
     /* ===================== Impression (logique conservée) ===================== */
     .print-page { display: contents; }
     .bon-slot { display: contents; }
     @media print {
-      .rail, .modal-overlay { display: none !important; }
+      .haut, .panneau, .modal-overlay { display: none !important; }
       .stage { margin: 0 !important; padding: 0 !important; background: #fff !important; }
       .stage__head { display: none !important; }
       /* taille réelle à l'impression : on garde les dimensions cm du format (pas de width:auto qui étirait le bon) */
@@ -400,57 +464,83 @@
 </head>
 <body>
 
-  <!-- ===================== SIDEBAR ===================== -->
-  <aside class="rail">
-    <div class="rail__brand">
-      <span class="rail__logo"><img src="data:image/png;base64,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" alt="Carrefour"></span>
+  <!-- Icônes : <svg class="ico"><use href="#i-nom"/></svg> -->
+  <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-aide" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+      <symbol id="i-imprimer" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-moins" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+      <symbol id="i-copier" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+      <symbol id="i-fermer" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+      <symbol id="i-recharger" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+      <symbol id="i-balance" viewBox="0 0 24 24"><path d="M12 3v18M8 21h8M4 7h16"/><path d="M4 7 1.5 13a2.5 2.5 0 0 0 5 0zM20 7l-2.5 6a2.5 2.5 0 0 0 5 0z"/></symbol>
+      <symbol id="i-alerte" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+      <symbol id="i-loupe" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-page" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- ===================== EN-TÊTE ===================== -->
+  <header class="haut">
+    <div class="marque">
+      <span class="logo"><img src="data:image/png;base64,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" alt="Carrefour"></span>
       <div>
-        <h1>Réimpression de bon</h1>
-        <p>Carrefour Vannes</p>
+        <b>Réimpression de bon</b>
+        <small>Hypermarché Carrefour Vannes</small>
       </div>
-      <button type="button" class="help-btn" id="helpBtn" aria-label="Aide" title="Aide">?</button>
     </div>
+    <span class="puce"><svg class="ico"><use href="#i-page"/></svg><span id="puceFormat">Horizontal</span></span>
+    <span class="espace"></span>
+    <button type="button" class="icone-btn" id="helpBtn" aria-label="Aide" title="Aide"><svg class="ico"><use href="#i-aide"/></svg></button>
+  </header>
 
-    <div class="rail__body">
-      <div class="group">
-        <p class="group__label">Format du bon</p>
-        <div class="format-grid" role="group" aria-label="Format">
-          <button type="button" class="format-card" data-fmt="vertical">
-            <span class="glyph"></span>
-            <span class="name">Vertical</span>
-          </button>
-          <button type="button" class="format-card active" data-fmt="horizontal">
-            <span class="glyph"></span>
-            <span class="name">Horizontal</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="group">
-        <p class="group__label">Ajouter des bons</p>
-        <div class="add-row">
-          <div class="qty">
-            <button type="button" id="qtyMinus" aria-label="Moins">−</button>
-            <input type="number" id="qty" value="1" min="1" max="50" aria-label="Quantité">
-            <button type="button" id="qtyPlus" aria-label="Plus">+</button>
+  <!-- ===================== PANNEAU DE COMMANDE ===================== -->
+  <aside class="panneau">
+    <div class="panneau__corps">
+      <section class="etape">
+        <span class="num">1</span>
+        <div class="etape-corps">
+          <h2>Format du bon</h2>
+          <div class="format-grid" role="group" aria-label="Format">
+            <button type="button" class="format-card" data-fmt="vertical">
+              <span class="glyph"></span>
+              <span class="name">Vertical</span>
+              <span class="dim">5 × 10 cm</span>
+            </button>
+            <button type="button" class="format-card active" data-fmt="horizontal">
+              <span class="glyph"></span>
+              <span class="name">Horizontal</span>
+              <span class="dim">12,35 × 5 cm</span>
+            </button>
           </div>
-          <button type="button" class="btn btn--add" id="addButton">➕ Ajouter</button>
         </div>
-      </div>
+      </section>
 
-      <div class="group">
-        <p class="group__label">Outils</p>
-        <button type="button" class="btn btn--ghost" id="resetButton">↺ Tout réinitialiser</button>
-      </div>
+      <section class="etape">
+        <span class="num">2</span>
+        <div class="etape-corps">
+          <h2>Ajouter des bons</h2>
+          <div class="add-row">
+            <div class="qty">
+              <button type="button" id="qtyMinus" aria-label="Moins"><svg class="ico"><use href="#i-moins"/></svg></button>
+              <input type="number" id="qty" value="1" min="1" max="50" aria-label="Quantité">
+              <button type="button" id="qtyPlus" aria-label="Plus"><svg class="ico"><use href="#i-plus"/></svg></button>
+            </div>
+            <button type="button" class="btn btn--add" id="addButton"><svg class="ico"><use href="#i-plus"/></svg>Ajouter</button>
+          </div>
+          <button type="button" class="lien-btn" id="resetButton"><svg class="ico"><use href="#i-recharger"/></svg>Tout réinitialiser</button>
+        </div>
+      </section>
     </div>
 
-    <div class="rail__foot">
+    <div class="panneau__pied">
       <div class="summary">
-        <div class="stat"><div class="num" id="statBons">0</div><div class="cap">bons</div></div>
-        <div class="stat"><div class="num" id="statPages">0</div><div class="cap">page(s) A4</div></div>
+        <div class="stat"><div class="num-stat" id="statBons">0</div><div class="cap">bons</div></div>
+        <div class="stat"><div class="num-stat" id="statPages">0</div><div class="cap">page(s) A4</div></div>
       </div>
-      <div class="warn" id="warn"><span class="dot"></span><span id="warnText"></span></div>
-      <button type="button" class="btn btn--print" id="printButton">🖨️ Imprimer</button>
+      <div class="warn" id="warn"><svg class="ico"><use href="#i-alerte"/></svg><span id="warnText"></span></div>
+      <button type="button" class="btn btn--print" id="printButton"><svg class="ico"><use href="#i-imprimer"/></svg>Imprimer <span class="touche">Ctrl P</span></button>
       <button type="button" class="legal-link" id="legalBtn">© <span id="legalYearLink"></span> DESJARDINS Bryan - Mentions légales</button>
     </div>
   </aside>
@@ -458,8 +548,8 @@
   <!-- ===================== Modale mentions légales ===================== -->
   <div class="modal-overlay" id="legalModal" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
-      <button type="button" class="modal-close" id="legalClose" aria-label="Fermer">×</button>
-      <h2 id="legalTitle">⚖️ Mentions légales</h2>
+      <button type="button" class="icone-btn modal-close" id="legalClose" aria-label="Fermer"><svg class="ico"><use href="#i-fermer"/></svg></button>
+      <h2 id="legalTitle"><svg class="ico"><use href="#i-balance"/></svg>Mentions légales</h2>
       <p>© <span id="legalYear"></span> DESJARDINS Bryan - Tous droits réservés.</p>
       <p>Cette application, son code et sa conception demeurent la propriété exclusive de l'auteur. L'auteur concède à l'Hypermarché Carrefour Vannes une simple licence d'utilisation personnelle, non exclusive et révocable à tout moment, sans transfert d'aucun droit de propriété. Toute reproduction, copie, modification ou déploiement par un tiers sans accord écrit préalable de l'auteur est strictement interdit.</p>
       <p><strong>Usage</strong> : outil interne de réimpression de bons d'achat. Visuel non officiel, sans valeur contractuelle.</p>
@@ -471,14 +561,14 @@
   <!-- ===================== Modale aide ===================== -->
   <div class="modal-overlay" id="helpModal" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-      <button type="button" class="modal-close" id="helpClose" aria-label="Fermer">×</button>
-      <h2 id="helpTitle">❓ Aide</h2>
+      <button type="button" class="icone-btn modal-close" id="helpClose" aria-label="Fermer"><svg class="ico"><use href="#i-fermer"/></svg></button>
+      <h2 id="helpTitle"><svg class="ico"><use href="#i-aide"/></svg>Aide</h2>
       <ol class="help-list">
         <li><b>Format</b> : choisissez Vertical (5×10 cm, 6 par page) ou Horizontal (12,35×5 cm, 4 par page).</li>
         <li><b>Remplir</b> : montant, dates de validité et code EAN. Le code-barres se génère automatiquement (EAN-13 / EAN-8, sinon CODE128).</li>
         <li><b>Montant automatique</b> : si le code EAN a déjà été imprimé auparavant, le montant se remplit tout seul sur fond jaune. Vérifiez-le, et corrigez-le si besoin : votre correction fera foi la prochaine fois.</li>
         <li><b>Saisie rapide</b> : la touche Entrée passe au champ suivant ; sur le dernier champ, elle crée un nouveau bon.</li>
-        <li><b>Plusieurs bons</b> : réglez la quantité (+ / −) puis « Ajouter ». Survolez un bon pour le dupliquer (⧉) ou le supprimer (×).</li>
+        <li><b>Plusieurs bons</b> : réglez la quantité (+ / −) puis « Ajouter ». Survolez un bon : ses boutons en haut à droite permettent de le dupliquer ou de le supprimer.</li>
         <li><b>Contrôle</b> : le compteur indique le nombre de bons et de pages A4 ; un bon incomplet (sans montant ou EAN) est surligné en orange.</li>
         <li><b>Imprimer</b> : le bouton Imprimer lance une page A4 à taille réelle, avec repères de découpe.</li>
         <li><b>À savoir</b> : les bons en cours ne sont pas sauvegardés, recharger la page efface tout. Seule l'association entre un code EAN et son montant est mémorisée, au moment de l'impression.</li>
@@ -490,6 +580,7 @@
   <main class="stage">
     <div class="stage__head">
       <h2>Plan de page</h2>
+      <span class="preview-note"><svg class="ico"><use href="#i-loupe"/></svg>Aperçu agrandi · impression à taille réelle</span>
     </div>
     <div id="bonsList"></div>
   </main>
@@ -499,8 +590,8 @@
     <div class="bon-wrap">
       <span class="bon-index">1</span>
       <div class="bon-actions">
-        <button type="button" class="bon-dup" title="Dupliquer ce bon" aria-label="Dupliquer">⧉</button>
-        <button type="button" class="bon-remove" title="Supprimer ce bon" aria-label="Supprimer">×</button>
+        <button type="button" class="bon-dup" title="Dupliquer ce bon" aria-label="Dupliquer"><svg class="ico"><use href="#i-copier"/></svg></button>
+        <button type="button" class="bon-remove" title="Supprimer ce bon" aria-label="Supprimer"><svg class="ico"><use href="#i-fermer"/></svg></button>
       </div>
       <div class="bon-container layout-horizontal">
         <div class="ga-accent"></div>
@@ -544,6 +635,7 @@
     const COLS = { vertical: 3, horizontal: 1 };
     const PER_PAGE = { vertical: 6, horizontal: 4 };
     const PAGE_MARGIN_MM = 10;
+    const FORMAT_LIBELLE = { vertical: 'Vertical · 5 × 10 cm · 6 par page', horizontal: 'Horizontal · 12,35 × 5 cm · 4 par page' };
 
     /* ---------- Mémoire EAN -> montant ----------
        Chargée une seule fois au démarrage, en tâche de fond : aucun appel
@@ -759,6 +851,7 @@
       });
       document.getElementById('statBons').textContent = count;
       document.getElementById('statPages').textContent = Math.ceil(count / PER_PAGE[currentLayout]);
+      document.getElementById('puceFormat').textContent = FORMAT_LIBELLE[currentLayout];
       const warn = document.getElementById('warn');
       if (incomplete) {
         warn.classList.add('show');
