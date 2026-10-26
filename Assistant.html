@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <style>
+      /* Assistant d'installation (fenêtre du Google Sheets, 640 × 720) : palette « Comptoir ». */
+      :root {
+        --fond: #f5f3f0;
+        --surface: #ffffff;
+        --encre: #1c1917;
+        --doux: #6f6863;
+        --trait: #e5dfd8;
+        --trait-fort: #d3cbc2;
+        --accent: #0f766e;
+        --accent-fonce: #0b5d57;
+        --accent-doux: #e3f1ef;
+        --ok: #15803d;
+        --ok-doux: #e7f4eb;
+        --danger: #c81e1e;
+        --danger-doux: #fcebea;
+        --orange: #b45309;
+        --orange-doux: #fdf1e2;
+        --bleu-google: #0b57d0;
+        --cf-blue: #004e9f;
+        color-scheme: light;
+      }
+      * { box-sizing: border-box; }
+      [hidden] { display: none !important; }
+      body {
+        margin: 0; font-size: 15px; line-height: 1.5; color: var(--encre); background: var(--surface);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+      button, input { font: inherit; color: inherit; }
+      :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+      .etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; list-style: none; margin: 0; padding: 6px 20px 14px; }
+      .etapes li { display: grid; gap: 6px; font-size: 12.5px; color: var(--doux); }
+      .etapes li::before { content: ""; height: 4px; border-radius: 4px; background: var(--trait); }
+      .etapes li.fait { color: var(--ok); }
+      .etapes li.fait::before { background: var(--ok); }
+      .etapes li.encours { color: var(--encre); font-weight: 600; }
+      .etapes li.encours::before { background: var(--accent); }
+
+      .corps { padding: 4px 20px 8px; display: grid; gap: 14px; }
+      h1 { margin: 0; font-size: 20px; }
+      p { margin: 0; }
+      .doux { color: var(--doux); font-size: 13.5px; }
+      .pied {
+        display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+        padding: 14px 20px 18px; border-top: 1px solid var(--trait); margin-top: 8px;
+      }
+      .btn {
+        border-radius: 10px; padding: 11px 18px; font-weight: 600; cursor: pointer;
+        border: 1px solid var(--trait); background: var(--surface); color: var(--encre);
+        text-decoration: none; display: inline-block;
+      }
+      .btn:hover { border-color: var(--trait-fort); }
+      .btn.principal { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .btn.principal:hover { background: var(--accent-fonce); }
+      .btn:disabled { opacity: .5; cursor: default; }
+
+      .champ { display: grid; gap: 6px; }
+      .champ label { font-size: 13px; font-weight: 650; }
+      .champ input {
+        height: 46px; border: 1.5px solid var(--trait-fort); border-radius: 10px;
+        background: var(--surface); padding: 0 12px; font-size: 16px; width: 100%;
+      }
+      .champ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-doux); }
+      .ligne { display: flex; gap: 8px; }
+      .ligne input { flex: 1; min-width: 0; }
+      .message { font-size: 13.5px; min-height: 1em; }
+      .message.ko { color: var(--danger); }
+      .message.ok { color: var(--ok); }
+
+      .info { border-radius: 10px; padding: 10px 14px; font-size: 14px; background: var(--fond); }
+      .info.ok { background: var(--ok-doux); color: #14532d; }
+      .info.conseil { background: var(--orange-doux); color: #6b3a07; }
+      .info.erreur { background: var(--danger-doux); color: var(--danger); }
+
+      /* Aperçu de l'en-tête du bon */
+      .apercu { border: 1.5px dashed var(--trait-fort); border-radius: 10px; padding: 12px 14px; text-align: center; }
+      .apercu small { display: block; font-size: 11px; color: var(--doux); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .6px; }
+      .apercu b { display: block; color: var(--cf-blue); text-transform: uppercase; font-size: 15px; }
+      .apercu span { display: block; color: #555; font-size: 13px; }
+
+      /* Gestes à faire chez Google */
+      .clics { margin: 0; padding: 0; list-style: none; counter-reset: clic; display: grid; gap: 6px; }
+      .clics li {
+        counter-increment: clic; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        padding: 7px 10px 7px 40px; position: relative; border: 1px solid var(--trait); border-radius: 10px; font-size: 14px;
+      }
+      .clics li::before {
+        content: counter(clic); position: absolute; left: 9px; width: 22px; height: 22px; border-radius: 50%;
+        display: grid; place-items: center; background: var(--encre); color: #fff; font-size: 12px; font-weight: 800;
+      }
+      .mini { flex: none; font-size: 12.5px; font-weight: 650; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--trait-fort); background: var(--surface); white-space: nowrap; }
+      .mini.bleu { background: var(--bleu-google); border-color: var(--bleu-google); color: #fff; }
+
+      .fin { text-align: center; padding: 30px 10px 10px; display: grid; gap: 12px; justify-items: center; }
+      .rond { width: 64px; height: 64px; border-radius: 50%; background: var(--ok-doux); color: var(--ok); display: grid; place-items: center; font-size: 30px; font-weight: 800; }
+    </style>
+  </head>
+  <body>
+    <script type="text/plain" id="jeton"><?= jeton ?></script>
+    <ol class="etapes" id="etapes"><li>Votre magasin</li><li>Mise en ligne</li><li>Les postes</li></ol>
+
+    <!-- 1. Votre magasin -->
+    <section class="ecran" data-ecran="0">
+      <div class="corps">
+        <h1>Votre magasin</h1>
+        <p>Ces informations s'impriment en tête de chaque bon.</p>
+        <div class="champ">
+          <label for="nom">Nom du magasin</label>
+          <input id="nom" maxlength="80" autocomplete="off" placeholder="Hypermarché Carrefour Lorient" />
+        </div>
+        <div class="champ">
+          <label for="adresse">Adresse</label>
+          <input id="adresse" maxlength="120" autocomplete="off" placeholder="1 rue de l'Exemple, 56100 Lorient" />
+        </div>
+        <div class="apercu" aria-live="polite">
+          <small>Sur le bon</small>
+          <b id="apercuNom">Nom du magasin</b>
+          <span id="apercuAdresse">Adresse</span>
+        </div>
+        <div class="info conseil">
+          <b>Compte Google :</b> utilisez de préférence celui <b>du magasin</b>. L'application tourne sous ce
+          compte, et s'arrête s'il disparaît (départ d'un salarié, par exemple).
+        </div>
+        <p class="message ko" id="msgMagasin" role="status"></p>
+      </div>
+      <div class="pied">
+        <button class="btn principal" id="btnMagasin" type="button">Enregistrer et continuer</button>
+      </div>
+    </section>
+
+    <!-- 2. Mise en ligne -->
+    <section class="ecran" data-ecran="1" hidden>
+      <div class="corps">
+        <h1>Mettre l'application en ligne</h1>
+        <div id="enLigneGuide" style="display: grid; gap: 12px">
+          <p>
+            Google demande de faire cette étape vous-même. « Ouvrir la page de mise en ligne » ouvre la bonne
+            page dans un nouvel onglet : suivez ces 7 gestes, puis revenez ici.
+          </p>
+          <ol class="clics">
+            <li><span>En haut à droite</span><span class="mini bleu">Déployer ▾</span></li>
+            <li><span>Dans le menu</span><span class="mini">Nouveau déploiement</span></li>
+            <li><span>Type (sinon : roue dentée ⚙️)</span><span class="mini">Application Web</span></li>
+            <li><span>Exécuter en tant que (déjà rempli)</span><span class="mini">Moi</span></li>
+            <li><span>Qui a accès (déjà rempli)</span><span class="mini">Tout le monde</span></li>
+            <li><span>En bas à droite</span><span class="mini bleu">Déployer</span></li>
+            <li><span>Sous « URL de l'application Web »</span><span class="mini">Copier</span></li>
+          </ol>
+          <p class="doux">
+            Google peut redemander les autorisations : faites comme au premier clic. Ne choisissez pas
+            « Utilisateur accédant à l'application Web » : chaque poste aurait besoin d'un compte Google.
+          </p>
+          <div class="champ">
+            <label for="adresseApp">Collez ici l'adresse copiée (elle finit par /exec)</label>
+            <div class="ligne">
+              <input id="adresseApp" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec" />
+              <button class="btn" id="btnAdresse" type="button">Valider</button>
+            </div>
+            <p class="message" id="msgAdresse" role="status"></p>
+          </div>
+        </div>
+        <div class="info ok" id="enLigneOk" hidden>
+          <b>✓ Adresse de l'application enregistrée.</b>
+          <div style="word-break: break-all; font-size: 13px; margin: 4px 0 8px" id="enLigneAdresse"></div>
+          <button class="btn" id="btnChanger" type="button">Changer l'adresse</button>
+        </div>
+      </div>
+      <div class="pied">
+        <button class="btn" type="button" data-retour>Retour</button>
+        <a class="btn" id="lienDeploiement" href="#" target="_blank" rel="noopener">Ouvrir la page de mise en ligne</a>
+        <button class="btn principal" id="btnSuite1" type="button" disabled>Continuer</button>
+      </div>
+    </section>
+
+    <!-- 3. Les postes -->
+    <section class="ecran" data-ecran="2" hidden>
+      <div class="corps">
+        <h1>Les postes du magasin</h1>
+        <p>Chaque poste qui imprime des bons ouvre ce lien. Aucun compte Google n'est nécessaire sur les postes.</p>
+        <div class="champ">
+          <label for="lienPostes">Lien de l'application</label>
+          <div class="ligne">
+            <input id="lienPostes" readonly />
+            <button class="btn" id="btnCopier" type="button">Copier</button>
+          </div>
+          <p class="message ok" id="msgCopie" role="status"></p>
+        </div>
+        <ol class="clics">
+          <li><span>Ouvrez le lien sur un poste</span><a class="mini" id="lienOuvrir" href="#" target="_blank" rel="noopener">Ouvrir ↗</a></li>
+          <li><span>Vérifiez le nom du magasin en haut de la page</span></li>
+          <li><span>Imprimez une page de bons et passez un code-barres en caisse</span></li>
+          <li><span>Ajoutez le lien aux favoris de chaque poste</span><span class="mini">☆ Favori</span></li>
+        </ol>
+        <p class="doux">Le lien n'est pas protégé par un mot de passe : transmettez-le seulement aux postes du magasin.</p>
+      </div>
+      <div class="pied">
+        <button class="btn" type="button" data-retour>Retour</button>
+        <button class="btn principal" id="btnTerminer" type="button">Terminer</button>
+      </div>
+    </section>
+
+    <!-- Fin -->
+    <section class="ecran" data-ecran="3" hidden>
+      <div class="fin">
+        <div class="rond" aria-hidden="true">✓</div>
+        <h1>L'application est installée</h1>
+        <p>
+          L'onglet « Application » du Google Sheets rappelle le magasin et le lien. Pour changer le nom ou
+          l'adresse : menu 🚀 APPLICATION → Assistant d'installation.
+        </p>
+      </div>
+      <div class="pied">
+        <button class="btn principal" id="btnFermer" type="button">Fermer</button>
+      </div>
+    </section>
+
+    <script>
+      const $ = id => document.getElementById(id);
+      const JETON = $('jeton').textContent.trim();
+      let etape = 0;
+
+      /* Serveur : google.script.run dans le Google Sheets. Page ouverte seule (aperçu
+         local) : simulation, pour voir les écrans sans Google. */
+      const enApercu = typeof google === 'undefined' || !google.script;
+      const simule = { nom: '', adresse: '', adresseApp: '', lienEditeur: '#' };
+      function appeler(fn, args, ok, ko) {
+        if (enApercu) {
+          setTimeout(() => {
+            try {
+              const r = {
+                etatAssistant: () => simule,
+                enregistrerMagasin: m => {
+                  if (!m.nom.trim()) throw new Error('Écrivez le nom du magasin.');
+                  if (!m.adresse.trim()) throw new Error("Écrivez l'adresse du magasin.");
+                  return Object.assign(simule, m);
+                },
+                enregistrerAdresseApplication: u => {
+                  if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)) throw new Error("Ce n'est pas l'adresse de l'application : elle commence par https://script.google.com/ et finit par /exec.");
+                  return (simule.adresseApp = u);
+                },
+                terminerAssistant: () => true,
+              }[fn](...args);
+              ok(r);
+            } catch (e) { (ko || erreur)(e); }
+          }, 150);
+          return;
+        }
+        google.script.run.withSuccessHandler(ok).withFailureHandler(ko || erreur)[fn](JETON, ...args);
+      }
+      function erreur(e) { alert((e && e.message) || String(e)); }
+
+      function montrer(n) {
+        etape = n;
+        document.querySelectorAll('.ecran').forEach(s => (s.hidden = +s.dataset.ecran !== n));
+        document.querySelectorAll('#etapes li').forEach((li, i) => {
+          li.classList.toggle('fait', i < n);
+          li.classList.toggle('encours', i === n);
+        });
+        $('etapes').hidden = n === 3;
+      }
+      document.querySelectorAll('[data-retour]').forEach(b => b.addEventListener('click', () => montrer(etape - 1)));
+
+      // 1. Votre magasin
+      function majApercu() {
+        $('apercuNom').textContent = $('nom').value.trim() || 'Nom du magasin';
+        $('apercuAdresse').textContent = $('adresse').value.trim() || 'Adresse';
+      }
+      ['nom', 'adresse'].forEach(id => $(id).addEventListener('input', () => { majApercu(); $('msgMagasin').textContent = ''; }));
+      $('nom').addEventListener('keydown', e => { if (e.key === 'Enter') $('adresse').focus(); });
+      $('adresse').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnMagasin').click(); });
+      $('btnMagasin').addEventListener('click', () => {
+        $('msgMagasin').textContent = '';
+        $('btnMagasin').disabled = true;
+        appeler('enregistrerMagasin', [{ nom: $('nom').value, adresse: $('adresse').value }],
+          () => { $('btnMagasin').disabled = false; montrer(1); },
+          e => { $('btnMagasin').disabled = false; $('msgMagasin').textContent = e.message || String(e); });
+      });
+
+      // 2. Mise en ligne
+      function majEnLigne(url) {
+        $('enLigneOk').hidden = !url;
+        $('enLigneGuide').hidden = !!url;
+        $('enLigneAdresse').textContent = url;
+        $('btnSuite1').disabled = !url;
+        $('lienPostes').value = url;
+        $('lienOuvrir').href = url || '#';
+      }
+      $('btnAdresse').addEventListener('click', () => {
+        const msg = $('msgAdresse');
+        msg.className = 'message'; msg.textContent = '';
+        appeler('enregistrerAdresseApplication', [$('adresseApp').value],
+          url => majEnLigne(url),
+          e => { msg.className = 'message ko'; msg.textContent = e.message || String(e); });
+      });
+      $('adresseApp').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnAdresse').click(); });
+      $('btnChanger').addEventListener('click', () => { $('enLigneOk').hidden = true; $('enLigneGuide').hidden = false; $('adresseApp').focus(); });
+      $('btnSuite1').addEventListener('click', () => montrer(2));
+
+      // 3. Les postes
+      $('btnCopier').addEventListener('click', () => {
+        const champ = $('lienPostes');
+        champ.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        $('msgCopie').textContent = ok ? '✓ Lien copié.' : 'Sélectionnez le lien et copiez-le (Ctrl+C).';
+      });
+      $('btnTerminer').addEventListener('click', () => {
+        $('btnTerminer').disabled = true;
+        appeler('terminerAssistant', [], () => montrer(3), e => { $('btnTerminer').disabled = false; erreur(e); });
+      });
+      $('btnFermer').addEventListener('click', () => { if (!enApercu) google.script.host.close(); });
+
+      // Ouverture : reprend ce qui est déjà réglé (relance de l'assistant)
+      appeler('etatAssistant', [], e => {
+        $('nom').value = e.nom; $('adresse').value = e.adresse;
+        majApercu();
+        $('lienDeploiement').href = e.lienEditeur;
+        majEnLigne(e.adresseApp);
+        montrer(0);
+        $('nom').focus();
+      });
+    </script>
+  </body>
+</html>

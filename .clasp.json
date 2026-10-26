@@ -21,7 +21,9 @@
   ],
   "filePushOrder": [
     "Code.gs",
+    "Installation.gs",
     "index.html",
+    "Assistant.html",
     "appsscript.json"
   ],
   "skipSubdirectories": false
