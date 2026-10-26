@@ -109,6 +109,27 @@
     .icone-btn:hover { background: var(--champ); border-color: var(--trait-fort); }
     .icone-btn .ico { width: 20px; height: 20px; }
 
+    /* Choix du design (en-tête) : sélecteur segmenté */
+    .segment {
+      display: flex; gap: 2px; padding: 3px; flex: none;
+      border: 1px solid var(--trait); border-radius: 12px; background: var(--fond);
+    }
+    .segment button {
+      height: 36px; padding: 0 12px; border: 0; border-radius: 9px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--doux); font-size: 13.5px; font-weight: 650;
+    }
+    .segment button:hover { color: var(--encre); }
+    .segment button.active { background: var(--surface); color: var(--encre); box-shadow: var(--shadow-sm); }
+    /* silhouettes : bloc plein (1) / cases (2) */
+    .segment .glyph { width: 12px; height: 18px; border: 1.5px solid currentColor; border-radius: 3px; flex: none; }
+    .segment [data-design="1"] .glyph { background: linear-gradient(currentColor 0 0) center 55% / 100% 40% no-repeat; }
+    .segment [data-design="2"] .glyph {
+      background:
+        linear-gradient(currentColor 0 0) center 35% / 60% 1.5px no-repeat,
+        linear-gradient(currentColor 0 0) center 65% / 60% 1.5px no-repeat;
+    }
+
     /* ===================== Panneau de commande (droite) ===================== */
     .panneau {
       position: fixed; top: var(--haut-h); right: 0; bottom: 0; z-index: 15;
@@ -158,16 +179,6 @@
       box-shadow: 0 0 0 3px var(--accent-doux);
     }
     .format-card.active .dim { color: var(--accent-fonce); }
-    .design-grid { margin-top: 10px; }
-    .design-grid .format-card { flex-direction: row; justify-content: center; gap: 10px; padding: 10px 8px; }
-    .format-card[data-design] .glyph { width: 16px; height: 24px; margin: 0; }
-    /* silhouettes : bloc plein (1) / cases (2) */
-    .format-card[data-design="1"] .glyph { background: linear-gradient(currentColor 0 0) center 55% / 100% 40% no-repeat; }
-    .format-card[data-design="2"] .glyph {
-      background:
-        linear-gradient(currentColor 0 0) center 35% / 70% 2px no-repeat,
-        linear-gradient(currentColor 0 0) center 65% / 70% 2px no-repeat;
-    }
 
     /* Ajout par lot */
     .add-row { display: flex; gap: 10px; }
@@ -544,6 +555,10 @@
     </div>
     <span class="puce"><svg class="ico"><use href="#i-page"/></svg><span id="puceFormat">Horizontal</span></span>
     <span class="espace"></span>
+    <div class="segment" role="group" aria-label="Design du bon">
+      <button type="button" data-design="1"><span class="glyph"></span>Design 1</button>
+      <button type="button" class="active" data-design="2"><span class="glyph"></span>Design 2</button>
+    </div>
     <button type="button" class="icone-btn" id="helpBtn" aria-label="Aide" title="Aide"><svg class="ico"><use href="#i-aide"/></svg></button>
   </header>
 
@@ -553,7 +568,7 @@
       <section class="etape">
         <span class="num">1</span>
         <div class="etape-corps">
-          <h2>Format et design</h2>
+          <h2>Format du bon</h2>
           <div class="format-grid" role="group" aria-label="Format">
             <button type="button" class="format-card" data-fmt="vertical">
               <span class="glyph"></span>
@@ -564,16 +579,6 @@
               <span class="glyph"></span>
               <span class="name">Horizontal</span>
               <span class="dim">12,35 × 5 cm</span>
-            </button>
-          </div>
-          <div class="format-grid design-grid" role="group" aria-label="Design">
-            <button type="button" class="format-card" data-design="1">
-              <span class="glyph"></span>
-              <span class="name">Design 1</span>
-            </button>
-            <button type="button" class="format-card active" data-design="2">
-              <span class="glyph"></span>
-              <span class="name">Design 2</span>
             </button>
           </div>
         </div>
@@ -626,7 +631,7 @@
       <button type="button" class="icone-btn modal-close" id="helpClose" aria-label="Fermer"><svg class="ico"><use href="#i-fermer"/></svg></button>
       <h2 id="helpTitle"><svg class="ico"><use href="#i-aide"/></svg>Aide</h2>
       <ol class="help-list">
-        <li><b>Format et design</b> : choisissez Vertical (5×10 cm, 6 par page) ou Horizontal (12,35×5 cm, 4 par page), puis le design : 1 (bloc de couleur, pour une imprimante couleur) ou 2 (cases, idéal en noir et blanc). Le design choisi est retenu sur ce poste.</li>
+        <li><b>Format et design</b> : choisissez Vertical (5×10 cm, 6 par page) ou Horizontal (12,35×5 cm, 4 par page), puis, en haut de l'écran, le design : 1 (bloc de couleur, pour une imprimante couleur) ou 2 (cases, idéal en noir et blanc). Le design choisi est retenu sur ce poste.</li>
         <li><b>Remplir</b> : montant, dates de validité et code EAN. Le début est réglé sur aujourd'hui, la fin est à saisir (celle du bon d'origine). Le code-barres se génère automatiquement (EAN-13 / EAN-8, sinon CODE128).</li>
         <li><b>Montant automatique</b> : si le code EAN a déjà été imprimé auparavant, le montant se remplit tout seul sur fond jaune. Vérifiez-le, et corrigez-le si besoin : votre correction fera foi la prochaine fois.</li>
         <li><b>Saisie rapide</b> : la touche Entrée passe au champ suivant ; sur le dernier champ, elle crée un nouveau bon.</li>
@@ -910,7 +915,7 @@
     function setDesign(d) {
       currentDesign = d;
       try { localStorage.setItem(CLE_DESIGN, d); } catch (e) { /* stockage indisponible */ }
-      document.querySelectorAll('.format-card[data-design]').forEach(c =>
+      document.querySelectorAll('.segment [data-design]').forEach(c =>
         c.classList.toggle('active', c.dataset.design === d));
       appliquerPartout();
       updateStatus();
@@ -947,7 +952,7 @@
       });
       document.getElementById('statBons').textContent = count;
       document.getElementById('statPages').textContent = Math.ceil(count / PER_PAGE[currentLayout]);
-      document.getElementById('puceFormat').textContent = 'Design ' + currentDesign + ' · ' + FORMAT_LIBELLE[currentLayout];
+      document.getElementById('puceFormat').textContent = FORMAT_LIBELLE[currentLayout];
       const warn = document.getElementById('warn');
       if (incomplete) {
         warn.classList.add('show');
@@ -967,7 +972,7 @@
     // ---- Câblage des contrôles ----
     document.querySelectorAll('.format-card[data-fmt]').forEach(c =>
       c.addEventListener('click', () => setLayout(c.dataset.fmt)));
-    document.querySelectorAll('.format-card[data-design]').forEach(c =>
+    document.querySelectorAll('.segment [data-design]').forEach(c =>
       c.addEventListener('click', () => setDesign(c.dataset.design)));
     document.getElementById('qtyMinus').addEventListener('click', () =>
       qtyInput.value = Math.max(1, (+qtyInput.value || 1) - 1));
