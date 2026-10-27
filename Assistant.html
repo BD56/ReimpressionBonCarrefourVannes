@@ -101,8 +101,9 @@
       .rond { width: 64px; height: 64px; border-radius: 50%; background: var(--ok-doux); color: var(--ok); display: grid; place-items: center; font-size: 30px; font-weight: 800; }
     </style>
   </head>
-  <body>
-    <script type="text/plain" id="jeton"><?= jeton ?></script>
+  <!-- Jeton dans un attribut : dans une balise <script>, Google écrirait la valeur entre
+       guillemets (littéral JavaScript) et le serveur la refuserait. -->
+  <body data-jeton="<?= jeton ?>">
     <ol class="etapes" id="etapes"><li>Votre magasin</li><li>Mise en ligne</li><li>Les postes</li></ol>
 
     <!-- 1. Votre magasin -->
@@ -222,7 +223,7 @@
 
     <script>
       const $ = id => document.getElementById(id);
-      const JETON = $('jeton').textContent.trim();
+      const JETON = (document.body.dataset.jeton || '').trim().replace(/^"|"$/g, '');
       let etape = 0;
 
       /* Serveur : google.script.run dans le Google Sheets. Page ouverte seule (aperçu
