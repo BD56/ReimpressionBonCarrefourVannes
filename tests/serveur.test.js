@@ -12,11 +12,13 @@ function monde({ lie = true, scriptId = 'S1', doc = {}, script = {} } = {}) {
     setHiddenGridlines() {}, setColumnWidth() {}, setRowHeights() {}, setRowHeight() {}, clear() {},
     getRange() { const r = { setValue: () => r, setValues: () => r, setFontSize: () => r, setFontWeight: () => r, setWrap: () => r,
       setVerticalAlignment: () => r, merge: () => r, setFontColor: () => r }; return r; },
-    insertImage() { const i = { setWidth: () => i, setHeight: () => i, setAltTextTitle: () => i, assignScript: s => { n.script = s; return i; } }; return i; } });
+    getImages: () => (n.images || []).map(img => ({ remove: () => n.images.splice(n.images.indexOf(img), 1) })),
+    insertImage() { const i = { setWidth: () => i, setHeight: () => i, setAltTextTitle: () => i, assignScript: s => { n.script = s; return i; } };
+      (n.images = n.images || []).push(i); return i; } });
   const ss = { getName: () => nomSS, rename: n => (nomSS = n), getId: () => 'SS',
     getSheetByName: n => { const x = feuilles.find(y => y.name === n); return x ? Object.assign(f(x), { _n: x }) : null; },
     insertSheet: n => { const x = { name: n }; feuilles.unshift(x); return Object.assign(f(x), { _n: x }); },
-    deleteSheet: s => feuilles.splice(feuilles.indexOf(s._n || feuilles.find(y => y.name === s.getName())), 1),
+    deleteSheet: s => { if (feuilles.length === 1) throw new Error("Vous ne pouvez pas supprimer toutes les feuilles d'un document."); return feuilles.splice(feuilles.indexOf(s._n || feuilles.find(y => y.name === s.getName())), 1); },
     getSheets: () => feuilles.map(x => Object.assign(f(x), { _n: x })), getNumSheets: () => feuilles.length,
     setActiveSheet() {}, moveActiveSheet() {}, toast() {} };
   let dialogue = null;
@@ -72,6 +74,9 @@ assert.equal(copie.docP.getProperty('ADRESSE_APP'), null); ok('copie : adresse /
 const modele = monde({ scriptId: 'M' });
 modele.ctx.preparerModele();
 assert.deepEqual(modele.feuilles.map(x => x.name), ['Démarrer']); assert.equal(modele.feuilles[0].script, 'ouvrirAssistant'); ok('modèle : onglet « Démarrer » + bouton relié à ouvrirAssistant');
+// 7 bis. Modèle repréparé (après une mise à jour) : « Démarrer » est son seul onglet
+modele.ctx.preparerModele();
+assert.deepEqual(modele.feuilles.map(x => x.name), ['Démarrer']); assert.equal(modele.feuilles[0].images.length, 1); ok('modèle repréparé : « Démarrer » réutilisé, un seul bouton');
 // 8. Vannes : projet autonome, propriétés du script
 const vannes = monde({ lie: false, script: { NOM_MAGASIN: 'Hypermarché Carrefour Vannes', ADRESSE_MAGASIN: '101 avenue de la Marne, 56000 Vannes' } });
 assert.equal(vannes.ctx.doGet().titre, 'Réimpression Bon - Hypermarché Carrefour Vannes'); ok('Vannes (projet autonome) : propriétés du script');

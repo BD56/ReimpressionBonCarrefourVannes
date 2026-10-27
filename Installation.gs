@@ -154,9 +154,15 @@ function majOngletApplication_() {
 // voir ne demande aucune autorisation ; c'est le clic qui en demande une.
 function creerOngletDemarrer_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var ancien = ss.getSheetByName(FEUILLE_DEMARRER);
-  if (ancien) ss.deleteSheet(ancien);
-  var f = ss.insertSheet(FEUILLE_DEMARRER, 0);
+  // Déjà là (modèle repréparé) : vidé et réutilisé. Le supprimer échouerait s'il est le
+  // seul onglet (« Vous ne pouvez pas supprimer toutes les feuilles d'un document »).
+  var f = ss.getSheetByName(FEUILLE_DEMARRER);
+  if (f) {
+    f.clear();
+    f.getImages().forEach(function (i) {
+      i.remove();
+    });
+  } else f = ss.insertSheet(FEUILLE_DEMARRER, 0);
   f.setHiddenGridlines(true);
   f.setColumnWidth(1, 30);
   f.setColumnWidth(2, 640);
