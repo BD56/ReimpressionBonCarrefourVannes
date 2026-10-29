@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Déroulé de la démonstration</title>
+<style>
+  /* Aide-mémoire pour le présentateur (A4) ; PDF : outils/direction.js */
+  @page { size: A4; margin: 14mm 16mm; }
+  :root { --encre: #1c1917; --doux: #6f6863; --trait: #e5dfd8; --accent: #0f766e; --fond: #f5f3f0; --orange-doux: #fdf1e2; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: var(--encre); font-size: 10.5pt; line-height: 1.45; }
+  h1 { font-size: 18pt; margin: 0 0 2pt; }
+  .doux { color: var(--doux); }
+  h2 { font-size: 12pt; margin: 14pt 0 5pt; color: var(--accent); }
+  ul, ol { margin: 0; padding-left: 16pt; }
+  li { margin: 3pt 0; }
+  table { border-collapse: collapse; width: 100%; margin-top: 4pt; }
+  th, td { border: 1px solid var(--trait); padding: 5pt 7pt; text-align: left; vertical-align: top; }
+  th { background: var(--fond); font-size: 9.5pt; }
+  td:first-child { white-space: nowrap; font-weight: 700; }
+  .encadre { background: var(--orange-doux); border-radius: 6pt; padding: 7pt 10pt; margin-top: 8pt; }
+</style>
+</head>
+<body>
+  <h1>Déroulé de la démonstration</h1>
+  <p class="doux">Réunion avec la direction de Vannes · environ 15 minutes · sur le Mac</p>
+
+  <h2>Avant la réunion</h2>
+  <ul>
+    <li>Ouvrir <b>la présentation</b> (PDF) dans Aperçu : Présentation → Diaporama, ou ⌘⇧F.</li>
+    <li>Ouvrir <b>la démo</b> (fichier HTML) dans Chrome, puis la mettre en plein écran (⌃⌘F). Elle fonctionne sans internet.</li>
+    <li>Ouvrir aussi <b>l'outil réel</b> de Vannes dans un autre onglet, pour l'impression et le passage en caisse.</li>
+    <li>Vérifier l'imprimante, et préparer un code EAN d'un vrai bon à refaire.</li>
+    <li>Imprimer quelques <b>fiches</b> d'une page, à laisser à la fin.</li>
+  </ul>
+
+  <h2>Pendant la réunion</h2>
+  <table>
+    <tr><th>Temps</th><th>Quoi</th><th>Ce qu'il faut dire ou montrer</th></tr>
+    <tr><td>0 – 5 min</td><td>Diapositives 1 à 4</td><td>Le besoin, l'écran unique, les deux designs.</td></tr>
+    <tr><td>5 – 10 min</td><td>La démo</td><td>
+      <ol>
+        <li>Les 3 bons d'exemple : saisie directe sur le bon, code-barres dessiné tout seul.</li>
+        <li>« Changer de design » : Design 1 (couleur), puis Design 2 (noir et blanc).</li>
+        <li>« Changer de format » : vertical (6 par page) et horizontal (4 par page).</li>
+        <li>« Bon incomplet » : contour orange et alerte dans le panneau de droite.</li>
+        <li>« Ajouter 6 bons » : le compteur passe à 2 pages A4.</li>
+        <li>« Aperçu d'impression » : A4 à taille réelle, repères de découpe.</li>
+      </ol></td></tr>
+    <tr><td>10 – 12 min</td><td>L'outil réel</td><td>Refaire un vrai bon, l'imprimer, <b>passer le code-barres en caisse</b> devant la direction. C'est l'argument le plus parlant.</td></tr>
+    <tr><td>12 – 15 min</td><td>Diapositives 5 à 8</td><td>Garanties, autres magasins, cadre, proposition. Laisser la fiche.</td></tr>
+  </table>
+
+  <div class="encadre">
+    Les bons de la démo portent le filigrane « DÉMONSTRATION » et des codes EAN fictifs : ils ne passent pas en caisse. Pour le passage en caisse, utiliser l'outil réel.
+  </div>
+
+  <h2>Questions possibles</h2>
+  <ul>
+    <li><b>Où sont les données ?</b> Nulle part : rien n'est saisi sur le client, rien n'est conservé.</li>
+    <li><b>Combien ça coûte ?</b> Rien : l'outil tourne sur le compte Google du magasin.</li>
+    <li><b>Et si Google tombe ?</b> L'outil s'ouvre par un lien Google : sans accès à Google, il ne s'ouvre pas.</li>
+    <li><b>Qui maintient l'outil ?</b> L'auteur. Une copie installée ne change plus d'elle-même.</li>
+    <li><b>D'autres magasins ?</b> Oui, en dix minutes avec l'assistant, sur accord de l'auteur et de la direction.</li>
+  </ul>
+</body>
+</html>

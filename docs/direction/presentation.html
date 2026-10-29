@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Réimpression de bons d'achat — présentation à la direction</title>
+<style>
+  /* 8 diapositives 16:9 (1280 × 720) ; PDF : outils/direction.js */
+  @page { size: 1280px 720px; margin: 0; }
+  :root {
+    --fond: #f5f3f0; --surface: #fff; --encre: #1c1917; --doux: #6f6863; --trait: #e5dfd8;
+    --accent: #0f766e; --accent-doux: #e3f1ef; --orange: #b45309; --orange-doux: #fdf1e2;
+    --cf-blue: #004e9f; --cf-red: #e2001a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #888; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--encre); }
+  .diapo {
+    width: 1280px; height: 720px; overflow: hidden; position: relative;
+    background: var(--fond); padding: 56px 72px 48px; margin: 0 auto 24px;
+    display: flex; flex-direction: column; break-after: page;
+  }
+  @media print { html, body { background: none; } .diapo { margin: 0; } }
+  .surtitre { font-size: 15px; font-weight: 750; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+  h1 { font-size: 46px; line-height: 1.12; margin: 0; letter-spacing: -.5px; }
+  h2 { font-size: 36px; line-height: 1.15; margin: 0 0 28px; letter-spacing: -.3px; }
+  p { margin: 0; }
+  .grand { font-size: 22px; line-height: 1.45; color: #3a3430; }
+  .doux { color: var(--doux); }
+  .pied { position: absolute; left: 72px; right: 72px; bottom: 24px; display: flex; justify-content: space-between; font-size: 12.5px; color: var(--doux); }
+  .num { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--encre); color: #fff; font-weight: 800; font-size: 15px; flex: none; }
+  .cartes { display: grid; gap: 18px; }
+  .carte { background: var(--surface); border: 1px solid var(--trait); border-radius: 16px; padding: 22px 24px; }
+  .carte h3 { margin: 12px 0 8px; font-size: 21px; }
+  .carte p { font-size: 16.5px; line-height: 1.5; color: #3a3430; }
+  .capture { border-radius: 12px; border: 1px solid var(--trait); box-shadow: 0 14px 34px rgba(28,25,23,.14); display: block; }
+  .liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .liste li { display: flex; gap: 14px; align-items: flex-start; font-size: 19px; line-height: 1.45; }
+  .coche { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-doux); color: var(--accent); display: grid; place-items: center; font-weight: 900; font-size: 15px; margin-top: 1px; }
+  /* diapositives de texte : contenu centré dans la hauteur */
+  .diapo.centre { justify-content: center; padding-bottom: 80px; }
+  .encadre { background: var(--orange-doux); color: #6b3a07; border-radius: 12px; padding: 14px 18px; font-size: 16px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<!-- 1. Titre -->
+<section class="diapo" style="display: grid; grid-template-columns: 1fr 640px; gap: 48px; align-items: center; padding-right: 0">
+  <div>
+    <p class="surtitre">Outil interne · accueil</p>
+    <h1>Réimpression de bons d'achat</h1>
+    <p class="grand" style="margin-top: 22px">Refaire un bon d'achat à l'identique, en quelques secondes, au bon format.</p>
+    <p class="doux" style="margin-top: 36px; font-size: 17px; line-height: 1.6">
+      Hypermarché Carrefour Vannes<br>Présentation à la direction · Bryan Desjardins
+    </p>
+  </div>
+  <img class="capture" src="img/app.png" alt="" style="width: 760px; border-radius: 12px 0 0 12px">
+</section>
+
+<!-- 2. Le besoin -->
+<section class="diapo centre">
+  <p class="surtitre">Le besoin</p>
+  <h2>À l'accueil, un bon d'achat doit parfois être refait</h2>
+  <div class="cartes" style="grid-template-columns: repeat(3, 1fr)">
+    <div class="carte"><span class="num">1</span><h3>Rapide</h3>
+      <p>Montant, dates de validité, code EAN : on saisit directement sur le bon, le code-barres se dessine tout seul.</p></div>
+    <div class="carte"><span class="num">2</span><h3>Sans erreur</h3>
+      <p>Un bon incomplet est signalé en orange. La clé du code EAN est contrôlée avant l'impression.</p></div>
+    <div class="carte"><span class="num">3</span><h3>Propre</h3>
+      <p>Impression A4 à taille réelle, avec repères de découpe : 4 ou 6 bons par page.</p></div>
+  </div>
+  <p class="grand" style="margin-top: 34px">Une première version tourne déjà à Vannes. La nouvelle version la rend plus claire, plus sûre, et installable dans d'autres magasins.</p>
+  <div class="pied"><span>Réimpression de bons d'achat</span><span>2</span></div>
+</section>
+
+<!-- 3. En un écran -->
+<section class="diapo" style="padding-bottom: 0">
+  <p class="surtitre">En un écran</p>
+  <h2 style="margin-bottom: 18px">Tout se fait sur une seule page</h2>
+  <div style="display: grid; grid-template-columns: 1fr 300px; gap: 36px; flex: 1; min-height: 0">
+    <img class="capture" src="img/app.png" alt="" style="width: 100%; height: auto; align-self: start">
+    <ul class="liste" style="align-content: start">
+      <li><span class="num">1</span><span>Choisir le <b>format</b> et le <b>design</b> du bon</span></li>
+      <li><span class="num">2</span><span>Saisir <b>montant</b>, <b>dates</b> et <b>EAN</b> directement sur le bon</span></li>
+      <li><span class="num">3</span><span>Ajouter des bons par lot, dupliquer, supprimer</span></li>
+      <li><span class="num">4</span><span>Contrôler le compteur, puis <b>Imprimer</b></span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4. Deux designs -->
+<section class="diapo centre">
+  <p class="surtitre">Deux designs</p>
+  <h2>Un bon lisible, quelle que soit l'imprimante</h2>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start">
+    <div style="display: grid; grid-template-columns: 230px 1fr; gap: 26px; align-items: start">
+      <img class="capture" src="img/design1-vertical.png" alt="" style="width: 230px">
+      <div><h3 style="margin: 4px 0 8px; font-size: 24px">Design 1</h3>
+        <p class="grand" style="font-size: 18px">Bloc bleu Carrefour : le plus valorisant. Pour une <b>imprimante couleur</b>.</p></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 230px 1fr; gap: 26px; align-items: start">
+      <img class="capture" src="img/design2-vertical.png" alt="" style="width: 230px">
+      <div><h3 style="margin: 4px 0 8px; font-size: 24px">Design 2</h3>
+        <p class="grand" style="font-size: 18px">Cases bordées, sans aplat : net en <b>noir et blanc</b>, peu d'encre.</p></div>
+    </div>
+  </div>
+  <p class="doux" style="margin-top: 26px; font-size: 16px">Chaque poste retient son design. Deux formats : vertical 5 × 10 cm ou horizontal 12,35 × 5 cm.</p>
+  <div class="pied"><span>Réimpression de bons d'achat</span><span>4</span></div>
+</section>
+
+<!-- 5. Garanties -->
+<section class="diapo" style="display: grid; grid-template-columns: 1fr 420px; gap: 48px; align-content: start">
+  <div>
+    <p class="surtitre">Ce que l'outil garantit</p>
+    <h2>Simple, et sans données à protéger</h2>
+    <ul class="liste">
+      <li><span class="coche">✓</span><span><b>Aucune donnée client</b> n'est saisie ni conservée.</span></li>
+      <li><span class="coche">✓</span><span><b>Rien n'est stocké</b> : les bons en cours disparaissent à la fermeture.</span></li>
+      <li><span class="coche">✓</span><span>Chaque bon porte la mention <b>« non échangeable, non remboursable, visuel non officiel »</b>.</span></li>
+      <li><span class="coche">✓</span><span>Les postes ouvrent un simple <b>lien</b>, sans compte ni installation.</span></li>
+      <li><span class="coche">✓</span><span><b>Gratuit</b> : l'outil tourne sur le compte Google du magasin.</span></li>
+    </ul>
+  </div>
+  <img class="capture" src="img/impression.png" alt="" style="width: 420px; margin-top: 30px">
+  <div class="pied"><span>Réimpression de bons d'achat</span><span>5</span></div>
+</section>
+
+<!-- 6. Autres magasins -->
+<section class="diapo" style="display: grid; grid-template-columns: 1fr 420px; gap: 48px; align-content: start">
+  <div>
+    <p class="surtitre">Et dans d'autres magasins ?</p>
+    <h2>Une installation autonome, en dix minutes</h2>
+    <ul class="liste">
+      <li><span class="num">1</span><span>Le magasin <b>copie le modèle</b> en un clic, sur son propre compte Google.</span></li>
+      <li><span class="num">2</span><span>Un <b>assistant</b> demande le nom et l'adresse du magasin, puis guide la mise en ligne.</span></li>
+      <li><span class="num">3</span><span>Le <b>lien</b> obtenu s'ouvre sur chaque poste de l'accueil.</span></li>
+    </ul>
+    <p class="grand" style="margin-top: 28px; font-size: 18px">Chaque magasin est indépendant : ses réglages, son compte, ses limites d'utilisation Google.</p>
+  </div>
+  <img class="capture" src="img/assistant.png" alt="" style="width: 420px; margin-top: 30px">
+  <div class="pied"><span>Réimpression de bons d'achat</span><span>6</span></div>
+</section>
+
+<!-- 7. Cadre -->
+<section class="diapo centre">
+  <p class="surtitre">Le cadre</p>
+  <h2>Ce qui est à valider</h2>
+  <div class="cartes" style="grid-template-columns: 1fr 1fr">
+    <div class="carte"><h3 style="margin-top: 0">Propriété et licence</h3>
+      <p>L'outil reste la propriété de son auteur. Le magasin reçoit une licence d'utilisation, révocable. Toute installation dans un autre magasin se fait avec l'accord écrit de l'auteur.</p></div>
+    <div class="carte"><h3 style="margin-top: 0">Usage de la marque</h3>
+      <p>Les bons portent le logo et le nom du magasin, avec la mention « visuel non officiel ». Leur usage est à valider par la direction, et au-delà si l'outil doit s'étendre.</p></div>
+  </div>
+  <div class="encadre" style="margin-top: 24px">
+    Le code-barres reprend le code EAN du bon d'origine : la caisse le lit comme d'habitude (vérifié à Vannes).
+  </div>
+  <div class="pied"><span>Réimpression de bons d'achat</span><span>7</span></div>
+</section>
+
+<!-- 8. Proposition -->
+<section class="diapo centre">
+  <p class="surtitre">Ce que je vous propose</p>
+  <h2>Trois étapes</h2>
+  <ul class="liste" style="gap: 22px">
+    <li><span class="num">1</span><span><b>Valider l'usage à l'accueil de Vannes</b> avec la nouvelle version.</span></li>
+    <li><span class="num">2</span><span><b>Essayer les deux designs</b> quelques jours, puis en garder un, selon l'imprimante.</span></li>
+    <li><span class="num">3</span><span>Si l'essai est concluant, <b>présenter l'outil au niveau supérieur</b>, avec le retour d'expérience de Vannes.</span></li>
+  </ul>
+  <p class="grand" style="margin-top: 44px">Merci. Place à la démonstration.</p>
+  <div class="pied"><span>Réimpression de bons d'achat</span><span>8</span></div>
+</section>
+
+</body>
+</html>

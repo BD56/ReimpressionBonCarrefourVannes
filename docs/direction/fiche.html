@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Réimpression de bons d'achat — fiche</title>
+<style>
+  /* Fiche d'une page A4, à laisser après la réunion ; PDF : outils/direction.js */
+  @page { size: A4; margin: 14mm 15mm; }
+  :root { --encre: #1c1917; --doux: #6f6863; --trait: #e5dfd8; --accent: #0f766e; --accent-doux: #e3f1ef; --fond: #f5f3f0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: var(--encre); font-size: 10.5pt; line-height: 1.45; }
+  .surtitre { font-size: 9pt; font-weight: 750; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin: 0 0 4pt; }
+  h1 { font-size: 21pt; margin: 0 0 4pt; letter-spacing: -.3px; }
+  .chapeau { font-size: 12pt; color: #3a3430; margin: 0 0 12pt; }
+  h2 { font-size: 11.5pt; margin: 0 0 5pt; }
+  p, ul { margin: 0; }
+  ul { padding-left: 14pt; }
+  li { margin: 2pt 0; }
+  .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt 14pt; }
+  .bloc { background: var(--fond); border: 1px solid var(--trait); border-radius: 8pt; padding: 9pt 11pt; }
+  .images { display: grid; grid-template-columns: 2.6fr 1fr 1fr; gap: 10pt; align-items: start; margin: 4pt 0 10pt; }
+  .images figure + figure img { width: 92pt; margin: 0 auto; }
+  .images img { width: 100%; border: 1px solid var(--trait); border-radius: 6pt; display: block; }
+  .images figcaption { font-size: 8.5pt; color: var(--doux); text-align: center; margin-top: 3pt; }
+  figure { margin: 0; }
+  .propose { margin-top: 12pt; background: var(--accent-doux); border-radius: 8pt; padding: 10pt 12pt; }
+  .pied { margin-top: 10pt; font-size: 8.5pt; color: var(--doux); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+  <p class="surtitre">Outil interne · accueil · Hypermarché Carrefour Vannes</p>
+  <h1>Réimpression de bons d'achat</h1>
+  <p class="chapeau">Refaire un bon d'achat à l'identique, en quelques secondes, au bon format.</p>
+
+  <div class="images">
+    <figure><img src="img/app.png" alt=""><figcaption>L'outil : tout sur une seule page</figcaption></figure>
+    <figure><img src="img/design1-vertical.png" alt=""><figcaption>Design 1 · imprimante couleur</figcaption></figure>
+    <figure><img src="img/design2-vertical.png" alt=""><figcaption>Design 2 · noir et blanc</figcaption></figure>
+  </div>
+
+  <div class="grille">
+    <div class="bloc">
+      <h2>Ce qu'il fait</h2>
+      <ul>
+        <li>Saisie directe sur le bon : montant, dates, code EAN.</li>
+        <li>Code-barres généré automatiquement, clé EAN contrôlée.</li>
+        <li>Bon incomplet signalé avant impression.</li>
+        <li>A4 à taille réelle, repères de découpe, 4 ou 6 bons par page.</li>
+      </ul>
+    </div>
+    <div class="bloc">
+      <h2>Ce qu'il garantit</h2>
+      <ul>
+        <li>Aucune donnée client saisie ni conservée.</li>
+        <li>Rien n'est stocké.</li>
+        <li>Mention « non échangeable, non remboursable, visuel non officiel » sur chaque bon.</li>
+        <li>Gratuit : compte Google du magasin.</li>
+      </ul>
+    </div>
+    <div class="bloc">
+      <h2>Dans d'autres magasins</h2>
+      <ul>
+        <li>Copie du modèle en un clic, sur le compte du magasin.</li>
+        <li>Assistant : nom, adresse, mise en ligne (environ 10 minutes).</li>
+        <li>Un lien par magasin, ouvert sur chaque poste de l'accueil.</li>
+      </ul>
+    </div>
+    <div class="bloc">
+      <h2>Le cadre</h2>
+      <ul>
+        <li>Propriété de l'auteur ; licence d'utilisation révocable.</li>
+        <li>Toute autre installation sur accord écrit de l'auteur.</li>
+        <li>Usage de la marque à valider par la direction, et au-delà.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="propose">
+    <h2>Proposition</h2>
+    <p>1. Valider l'usage à l'accueil de Vannes avec la nouvelle version. 2. Essayer les deux designs quelques jours, en garder un. 3. Si l'essai est concluant, présenter l'outil au niveau supérieur, avec le retour d'expérience de Vannes.</p>
+  </div>
+
+  <div class="pied"><span>Contact : Bryan Desjardins</span><span>Captures de démonstration : bons fictifs, sans valeur</span></div>
+</body>
+</html>
